@@ -1,6 +1,8 @@
 # ---- Recommendation Sites (HostGator / Apache) ----
 Options -Indexes
 DirectoryIndex index.html index.php
+AddType image/svg+xml .svg .svgz
+AddType image/webp .webp
 ErrorDocument 404 /404.html
 
 # Force HTTPS and remove www
