@@ -6,7 +6,7 @@ The daily writer takes the first unchecked topic. Edit, reorder or add topics fr
 - [x] How to make money taking online surveys → how-to-make-money-taking-online-surveys
 - [x] Legit ways to make money online from home → legit-ways-to-make-money-online
 - [x] Offline side hustles you can start this weekend → offline-side-hustles
-- [ ] How to earn your first $10 on Swagbucks (step by step)
+- [x] How to earn your first $10 on Swagbucks (step by step) → how-to-earn-first-10-on-swagbucks
 - [ ] Why you keep getting disqualified from surveys (and how to fix it)
 - [ ] Swagbucks in the UK: how it works and what you can earn
 - [ ] How to make money online as a beginner with no money
