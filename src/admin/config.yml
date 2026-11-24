@@ -1215,6 +1215,10 @@ collections:
       label: Google Analytics ID (G-XXXXXXX)
       widget: string
       required: false
+    - name: lookerStudioEmbedUrl
+      label: 'Statistics dashboard: Looker Studio embed URL (shown at /admin/stats/)'
+      widget: string
+      required: false
   - name: categories
     label: Categories
     file: src/_data/categories.json

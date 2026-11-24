@@ -1,0 +1,69 @@
+---
+layout: false
+permalink: /admin/stats/index.html
+eleventyExcludeFromCollections: true
+tags: []
+---
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Estadísticas · {{ site.name }}</title>
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<style>
+  :root{--ink:#0b1f1a;--green:#0f9d6b;--gold:#ffc23d;--line:#e3ebe7;--muted:#5d6f69}
+  *{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:#f4f8f6;color:#22302c}
+  header{background:var(--ink);color:#fff;padding:14px 22px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  header img{width:32px;height:32px}header h1{font-size:18px;margin:0;flex:1}
+  header a{color:var(--ink);background:var(--gold);text-decoration:none;font-weight:700;padding:8px 14px;border-radius:999px;font-size:14px}
+  main{max-width:1280px;margin:0 auto;padding:22px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-bottom:22px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;text-decoration:none;color:inherit;display:block;transition:transform .15s,box-shadow .15s}
+  .card:hover{transform:translateY(-2px);box-shadow:0 10px 24px -14px rgba(0,0,0,.25)}
+  .card b{display:block;color:var(--ink);font-size:16px;margin:6px 0 4px}.card span{font-size:14px;color:var(--muted)}
+  .card .ico{font-size:26px}
+  .frame{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden}
+  .frame iframe{width:100%;height:1800px;border:0;display:block}
+  .empty{background:#fff;border:2px dashed var(--line);border-radius:16px;padding:28px;line-height:1.6}
+  .empty h2{margin-top:0;color:var(--ink)}.empty code{background:#f4f8f6;padding:2px 6px;border-radius:6px}
+  .status{font-size:13px;color:var(--muted);margin:0 0 16px}
+  .ok{color:var(--green);font-weight:700}.no{color:#c0392b;font-weight:700}
+</style>
+</head>
+<body>
+<header>
+  <img src="/assets/img/logo.svg" alt="">
+  <h1>📊 Estadísticas de {{ site.name }}</h1>
+  <a href="/admin/">← Volver al panel</a>
+</header>
+<main>
+  <p class="status">
+    Google Analytics: {% if site.googleAnalyticsId %}<span class="ok">activo ({{ site.googleAnalyticsId }})</span>{% else %}<span class="no">no configurado</span>{% endif %}
+    · Search Console: {% if site.googleSiteVerification %}<span class="ok">verificado</span>{% else %}<span class="no">no configurado</span>{% endif %}
+  </p>
+  <div class="cards">
+    <a class="card" href="https://analytics.google.com/" target="_blank" rel="noopener"><span class="ico">📈</span><b>Google Analytics</b><span>Visitas en tiempo real, países, páginas, dispositivos y clics en tu link de Swagbucks.</span></a>
+    <a class="card" href="https://search.google.com/search-console?resource_id=sc-domain:recommendationsites.com" target="_blank" rel="noopener"><span class="ico">🔎</span><b>Google Search Console</b><span>Qué buscan en Google para llegar a ti, posiciones, impresiones y páginas indexadas.</span></a>
+    <a class="card" href="https://www.bing.com/webmasters" target="_blank" rel="noopener"><span class="ico">🅱️</span><b>Bing Webmaster</b><span>Posiciones en Bing, Yahoo y DuckDuckGo.</span></a>
+    <a class="card" href="https://lookerstudio.google.com/" target="_blank" rel="noopener"><span class="ico">🧩</span><b>Looker Studio</b><span>Edita el panel de gráficas que aparece abajo.</span></a>
+  </div>
+
+  {% if site.lookerStudioEmbedUrl %}
+  <div class="frame"><iframe src="{{ site.lookerStudioEmbedUrl }}" allowfullscreen sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe></div>
+  {% else %}
+  <div class="empty">
+    <h2>Aquí aparecerá tu panel de estadísticas con gráficas</h2>
+    <p>Para activarlo (una sola vez):</p>
+    <ol>
+      <li>Crea una propiedad en <b>Google Analytics</b> y pega el ID <code>G-XXXXXXX</code> en <i>Site settings → Google Analytics ID</i>.</li>
+      <li>En <b>Looker Studio</b> crea un informe con tu propiedad de Analytics como fuente (o usa la plantilla <i>GA4 Report</i>).</li>
+      <li>En el informe: <i>Archivo → Insertar informe → Habilitar inserción</i>, copia la <b>URL de inserción</b>.</li>
+      <li>Pégala en <i>Site settings → Statistics dashboard</i>. Listo: tus gráficas se verán en esta página.</li>
+    </ol>
+  </div>
+  {% endif %}
+</main>
+</body>
+</html>
