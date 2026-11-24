@@ -5,6 +5,11 @@ AddType image/svg+xml .svg .svgz
 AddType image/webp .webp
 ErrorDocument 404 /404.html
 
+# Hide deploy state and private files
+<FilesMatch "^\.(ftp-deploy-sync-state\.json|htpasswd|env)$">
+  Require all denied
+</FilesMatch>
+
 # Force HTTPS and remove www
 <IfModule mod_rewrite.c>
 RewriteEngine On

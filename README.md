@@ -38,14 +38,25 @@ En el repositorio → **Settings → Secrets and variables → Actions → New r
 
 > Nunca compartas estas contraseñas en un chat. Solo van en los secretos de GitHub.
 
-### 4. Activar el panel de administración
-1. En GitHub: foto de perfil → **Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token**.
-2. Nombre: `admin-recommendationsites`, expiración: la más larga, **Repository access → Only select repositories →** `recommendationsites`.
-3. **Permissions → Repository permissions → Contents: Read and write**.
-4. Copia el token.
-5. Entra a **https://recommendationsites.com/admin/** → **Sign in with Token** → pega el token.
+### 4. Activar el panel de administración (usuario y contraseña)
+Se hace **una sola vez**. Después entras a **https://recommendationsites.com/admin/** solo con tu usuario (o correo) y contraseña.
 
-Desde ahí puedes crear, editar o borrar artículos, subir imágenes, cambiar páginas, el link de referido, el bono y toda la configuración. Cada cambio se publica solo en 1–2 minutos.
+1. Crea un token de GitHub: foto de perfil → **Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token**. Repositorio: solo `recommendationsites`. Permiso **Contents: Read and write**. Expiración: la más larga.
+2. En el repositorio → **Settings → Secrets and variables → Actions**, crea estos secretos:
+
+| Nombre | Valor |
+|---|---|
+| `ADMIN_USERNAME` | el usuario que quieras para entrar |
+| `ADMIN_EMAIL` | tu correo (también sirve para entrar) |
+| `ADMIN_PASSWORD` | tu contraseña |
+| `ADMIN_GITHUB_TOKEN` | el token del paso 1 (nunca se te volverá a pedir) |
+| `ADMIN2_USERNAME`, `ADMIN2_EMAIL`, `ADMIN2_PASSWORD` | *(opcional)* un segundo usuario |
+
+3. **Actions → Build & deploy to HostGator → Run workflow.**
+
+Para cambiar la contraseña: edita el secreto `ADMIN_PASSWORD` y vuelve a correr el workflow.
+La contraseña se guarda cifrada en tu hosting (carpeta protegida `admin/_private`), nunca en el código.
+Tras 5 intentos fallidos, el acceso se bloquea 15 minutos.
 
 ## Qué puedes editar desde /admin
 

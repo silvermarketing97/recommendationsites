@@ -25,6 +25,16 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      - name: Create admin login (from secrets)
+        env:
+          ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          ADMIN_GITHUB_TOKEN: ${{ secrets.ADMIN_GITHUB_TOKEN }}
+          ADMIN2_USERNAME: ${{ secrets.ADMIN2_USERNAME }}
+          ADMIN2_EMAIL: ${{ secrets.ADMIN2_EMAIL }}
+          ADMIN2_PASSWORD: ${{ secrets.ADMIN2_PASSWORD }}
+        run: php scripts/make-admin-config.php _site/admin/_private/config.php
       - name: Upload to HostGator (FTP)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
