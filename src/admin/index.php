@@ -15,6 +15,7 @@ $session = ['backendName' => 'github', 'token' => $cfg['github_token']];
   <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
   <script>
     // Signed in with username/password: open the editor directly (no GitHub prompt).
+    try { localStorage.setItem('rs_notrack', '1'); } catch (e) {}
     try { localStorage.setItem('sveltia-cms.user', <?= json_encode(json_encode($session)) ?>); } catch (e) {}
   </script>
 </head>
