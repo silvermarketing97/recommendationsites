@@ -19,6 +19,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -44,3 +46,19 @@ jobs:
           protocol: ftps
           local-dir: ./_site/
           server-dir: ${{ secrets.FTP_DIR || './' }}
+      - name: WhatsApp notice for new articles (CallMeBot)
+        if: github.event_name == 'push'
+        env:
+          WA_PHONE: ${{ secrets.WHATSAPP_PHONE }}
+          WA_KEY: ${{ secrets.CALLMEBOT_APIKEY }}
+          MSG: ${{ github.event.head_commit.message }}
+        run: |
+          if [ -z "$WA_PHONE" ] || [ -z "$WA_KEY" ]; then echo "WhatsApp not configured, skipping"; exit 0; fi
+          case "$MSG" in "New article:"*) ;; *) echo "Not a new article"; exit 0;; esac
+          TITLE=$(printf '%s' "$MSG" | head -1 | sed 's/^New article: *//')
+          for f in $(git diff --name-only --diff-filter=A HEAD~1 HEAD -- 'src/posts/*.md'); do
+            SLUG=$(basename "$f" .md)
+            TEXT=$(printf '✅ Nuevo artículo publicado en Recommendation Sites:\n\n%s\n\nhttps://recommendationsites.com/%s/' "$TITLE" "$SLUG")
+            curl -s -G --max-time 30 "https://api.callmebot.com/whatsapp.php" \
+              --data-urlencode "phone=$WA_PHONE" --data-urlencode "apikey=$WA_KEY" --data-urlencode "text=$TEXT" -o /dev/null -w "CallMeBot HTTP %{http_code}\n" || true
+          done
