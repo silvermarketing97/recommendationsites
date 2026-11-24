@@ -43,6 +43,12 @@ function rs_db() {
     $db->exec('CREATE INDEX IF NOT EXISTS i_day ON hits(day, type)');
     $db->exec('CREATE INDEX IF NOT EXISTS i_ts ON hits(ts)');
     $db->exec('CREATE INDEX IF NOT EXISTS i_pv ON hits(pv)');
+    $db->exec('CREATE TABLE IF NOT EXISTS bots (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        ts INTEGER NOT NULL, day TEXT NOT NULL, hour INTEGER NOT NULL,
+        name TEXT, category TEXT, path TEXT, status INTEGER, ip TEXT
+    )');
+    $db->exec('CREATE INDEX IF NOT EXISTS b_day ON bots(day)');
     return $db;
 }
 
@@ -56,6 +62,68 @@ function rs_cut($s, $n = 300) { return mb_substr(trim((string)$s), 0, $n); }
 
 function rs_is_bot($ua) {
     return $ua === '' || preg_match('/bot|crawl|spider|slurp|bingpreview|facebookexternalhit|embedly|quora link|whatsapp|telegrambot|discordbot|preview|headless|lighthouse|pingdom|uptime|monitor|curl|wget|python|java\/|go-http|axios|node-fetch|semrush|ahrefs|mj12|dotbot|petalbot|yandex|baiduspider|bytespider|gptbot|claudebot|ccbot|chatgpt|perplexity/i', $ua);
+}
+
+/** Identify a robot from its user agent. Returns [name, category] or null for humans. */
+function rs_bot_info($ua) {
+    $ua = (string)$ua;
+    if (trim($ua) === '') return ['No user agent', 'Script / unknown'];
+    static $list = [
+        // name => [regex, category]
+        'Googlebot' => ['/Googlebot|Google-InspectionTool|GoogleOther|Storebot-Google/i', 'Search engine'],
+        'Google Ads/Other' => ['/AdsBot-Google|Mediapartners-Google|APIs-Google|FeedFetcher-Google|Google-Read-Aloud|Google-Extended/i', 'Search engine'],
+        'Bingbot' => ['/bingbot|BingPreview|msnbot|adidxbot/i', 'Search engine'],
+        'Applebot' => ['/Applebot/i', 'Search engine'],
+        'DuckDuckBot' => ['/DuckDuckBot|DuckAssistBot/i', 'Search engine'],
+        'YandexBot' => ['/Yandex/i', 'Search engine'],
+        'Baiduspider' => ['/Baiduspider/i', 'Search engine'],
+        'Yahoo Slurp' => ['/Slurp/i', 'Search engine'],
+        'Seznam' => ['/SeznamBot/i', 'Search engine'],
+        'GPTBot (OpenAI)' => ['/GPTBot|OAI-SearchBot|ChatGPT-User/i', 'AI'],
+        'ClaudeBot (Anthropic)' => ['/ClaudeBot|Claude-Web|Claude-User|Claude-SearchBot|anthropic-ai/i', 'AI'],
+        'PerplexityBot' => ['/Perplexity/i', 'AI'],
+        'Bytespider (TikTok)' => ['/Bytespider/i', 'AI'],
+        'CCBot (Common Crawl)' => ['/CCBot/i', 'AI'],
+        'Meta AI' => ['/meta-externalagent|Meta-ExternalFetcher|FacebookBot/i', 'AI'],
+        'Amazonbot' => ['/Amazonbot/i', 'AI'],
+        'Cohere / You.com / others' => ['/cohere-ai|YouBot|Diffbot|ImagesiftBot|Timpibot|omgili/i', 'AI'],
+        'AhrefsBot' => ['/AhrefsBot|AhrefsSiteAudit/i', 'SEO tool'],
+        'SemrushBot' => ['/SemrushBot|SiteAuditBot/i', 'SEO tool'],
+        'MJ12bot (Majestic)' => ['/MJ12bot/i', 'SEO tool'],
+        'DotBot (Moz)' => ['/DotBot|rogerbot/i', 'SEO tool'],
+        'Screaming Frog' => ['/Screaming Frog/i', 'SEO tool'],
+        'DataForSeoBot' => ['/DataForSeoBot|serpstatbot|SEOkicks|BLEXBot|Barkrowler|MegaIndex/i', 'SEO tool'],
+        'PetalBot (Huawei)' => ['/PetalBot/i', 'Search engine'],
+        'Facebook preview' => ['/facebookexternalhit|facebookcatalog/i', 'Social preview'],
+        'X/Twitter preview' => ['/Twitterbot/i', 'Social preview'],
+        'LinkedIn preview' => ['/LinkedInBot/i', 'Social preview'],
+        'WhatsApp preview' => ['/WhatsApp/i', 'Social preview'],
+        'Telegram preview' => ['/TelegramBot/i', 'Social preview'],
+        'Discord / Slack preview' => ['/Discordbot|Slackbot|Slack-ImgProxy/i', 'Social preview'],
+        'Pinterest' => ['/Pinterest/i', 'Social preview'],
+        'Uptime monitor' => ['/UptimeRobot|Pingdom|StatusCake|Site24x7|BetterStack|monitor/i', 'Monitoring'],
+        'Lighthouse / PageSpeed' => ['/Lighthouse|PageSpeed|Chrome-Lighthouse|GTmetrix/i', 'Monitoring'],
+        'curl / wget' => ['/^curl|Wget/i', 'Script / unknown'],
+        'Python script' => ['/python|aiohttp|scrapy/i', 'Script / unknown'],
+        'Other script' => ['/Go-http-client|okhttp|Java\/|axios|node-fetch|libwww|HttpClient|Apache-HttpClient|PostmanRuntime|Headless/i', 'Script / unknown'],
+    ];
+    foreach ($list as $name => [$re, $cat]) if (preg_match($re, $ua)) return [$name, $cat];
+    if (preg_match('/bot|crawl|spider|scrape|fetch|preview|checker|scan/i', $ua)) {
+        if (preg_match('/([A-Za-z0-9._-]*(?:bot|crawler|spider)[A-Za-z0-9._-]*)/i', $ua, $m)) return [mb_substr($m[1], 0, 40), 'Other bot'];
+        return ['Other bot', 'Other bot'];
+    }
+    return null;
+}
+
+function rs_log_bot($path, $status) {
+    $ua = (string)($_SERVER['HTTP_USER_AGENT'] ?? '');
+    $info = rs_bot_info($ua);
+    if (!$info) return;
+    $now = time();
+    $ipHash = substr(hash('sha256', rs_salt() . ($_SERVER['REMOTE_ADDR'] ?? '')), 0, 12);
+    $st = rs_db()->prepare('INSERT INTO bots (ts, day, hour, name, category, path, status, ip) VALUES (?,?,?,?,?,?,?,?)');
+    $st->execute([$now, date('Y-m-d', $now), (int)date('G', $now), $info[0], $info[1], rs_cut($path, 300), (int)$status, $ipHash]);
+    if (mt_rand(1, 500) === 1) rs_db()->exec('DELETE FROM bots WHERE ts < ' . ($now - 400 * 86400)); // keep ~13 months
 }
 
 function rs_parse_ua($ua, $sw) {
@@ -238,6 +306,17 @@ function rs_report($range, $from = null, $to = null) {
         }
     }
 
+    // Robots per period (same buckets as the chart)
+    if ($hourly) {
+        $st = $db->prepare("SELECT hour k, COUNT(*) n FROM bots WHERE day=? GROUP BY hour"); $st->execute([$a]);
+        $bm = []; foreach ($st->fetchAll(PDO::FETCH_ASSOC) as $r) $bm[(int)$r['k']] = (int)$r['n'];
+        foreach ($series as $i => &$row) { $row['bots'] = $bm[$i] ?? 0; } unset($row);
+    } else {
+        $st = $db->prepare("SELECT day k, COUNT(*) n FROM bots WHERE day BETWEEN ? AND ? GROUP BY day"); $st->execute([$a, $b]);
+        $bm = []; foreach ($st->fetchAll(PDO::FETCH_ASSOC) as $r) $bm[$r['k']] = (int)$r['n'];
+        foreach ($series as &$row) { $row['bots'] = $bm[$row['label']] ?? 0; } unset($row);
+    }
+
     $pages = rs_top($db, 'path', $a, $b, 15, "type='pageview'", ", MAX(title) title, CAST(AVG(CASE WHEN duration>0 THEN duration END) AS INTEGER) avgdur");
     $st = $db->prepare("SELECT path name, COUNT(*) views FROM hits WHERE type='pageview' AND day BETWEEN ? AND ? AND pv IN (SELECT MIN(pv) FROM hits WHERE type='pageview' AND day BETWEEN ? AND ? GROUP BY session) GROUP BY path ORDER BY views DESC LIMIT 10");
     $st->execute([$a, $b, $a, $b]); $entry = $st->fetchAll(PDO::FETCH_ASSOC);
@@ -261,6 +340,8 @@ function rs_report($range, $from = null, $to = null) {
         'clickPlacements' => rs_top($db, 'label', $a, $b, 10, "type='event' AND event='referral_click'"),
         'clickPages' => rs_top($db, 'path', $a, $b, 10, "type='event' AND event='referral_click'"),
         'realtime' => rs_realtime($db),
+        'bots' => rs_bots_report($db, $a, $b, $pa, $pb),
+        'health' => rs_health($db, $series),
         'generatedAt' => date('c'),
     ];
 }
@@ -275,4 +356,39 @@ function rs_realtime($db = null) {
     $st2 = $db->prepare("SELECT ts, path, country, device, source FROM hits WHERE type='pageview' ORDER BY id DESC LIMIT 12");
     $st2->execute();
     return ['active' => $active, 'pages' => $st->fetchAll(PDO::FETCH_ASSOC), 'recent' => $st2->fetchAll(PDO::FETCH_ASSOC)];
+}
+
+
+function rs_bots_report($db, $a, $b, $pa, $pb) {
+    $cnt = function ($x, $y) use ($db) { $st = $db->prepare("SELECT COUNT(*) FROM bots WHERE day BETWEEN ? AND ?"); $st->execute([$x, $y]); return (int)$st->fetchColumn(); };
+    $st = $db->prepare("SELECT name, category, COUNT(*) views, MAX(ts) last, SUM(status >= 400) errors FROM bots WHERE day BETWEEN ? AND ? GROUP BY name ORDER BY views DESC LIMIT 25");
+    $st->execute([$a, $b]); $byName = $st->fetchAll(PDO::FETCH_ASSOC);
+    $st = $db->prepare("SELECT category name, COUNT(*) views, COUNT(DISTINCT name) visitors FROM bots WHERE day BETWEEN ? AND ? GROUP BY category ORDER BY views DESC");
+    $st->execute([$a, $b]); $byCat = $st->fetchAll(PDO::FETCH_ASSOC);
+    $st = $db->prepare("SELECT path name, COUNT(*) views, COUNT(DISTINCT name) visitors FROM bots WHERE day BETWEEN ? AND ? GROUP BY path ORDER BY views DESC LIMIT 12");
+    $st->execute([$a, $b]); $paths = $st->fetchAll(PDO::FETCH_ASSOC);
+    $st = $db->prepare("SELECT path name, COUNT(*) views, COUNT(DISTINCT name) visitors FROM bots WHERE status >= 400 AND day BETWEEN ? AND ? GROUP BY path ORDER BY views DESC LIMIT 10");
+    $st->execute([$a, $b]); $errors = $st->fetchAll(PDO::FETCH_ASSOC);
+    $last = function ($re) use ($db) { $st = $db->prepare("SELECT MAX(ts) FROM bots WHERE name LIKE ?"); $st->execute([$re]); return (int)$st->fetchColumn(); };
+    return [
+        'total' => $cnt($a, $b), 'previous' => $cnt($pa, $pb),
+        'byName' => $byName, 'byCategory' => $byCat, 'paths' => $paths, 'errors' => $errors,
+        'lastGoogle' => $last('Googlebot%'), 'lastBing' => $last('Bingbot%'),
+    ];
+}
+
+function rs_health($db, $series) {
+    $st = $db->query("SELECT MAX(ts) FROM hits WHERE type='pageview'"); $lastHuman = (int)$st->fetchColumn();
+    $st = $db->query("SELECT MIN(ts) FROM hits"); $first = (int)$st->fetchColumn();
+    $st = $db->prepare("SELECT COUNT(DISTINCT visitor) FROM hits WHERE type='pageview' AND day = ?"); $st->execute([date('Y-m-d')]); $today = (int)$st->fetchColumn();
+    $zero = 0; foreach ($series as $r) if (($r['pageviews'] ?? 0) === 0) $zero++;
+    // consecutive days without human visits, counting back from today
+    $streak = 0;
+    for ($i = 0; $i < 60; $i++) {
+        $d = date('Y-m-d', strtotime("-$i day"));
+        $st = $db->prepare("SELECT COUNT(*) FROM hits WHERE type='pageview' AND day=?"); $st->execute([$d]);
+        if ((int)$st->fetchColumn() > 0) break;
+        $streak++;
+    }
+    return ['lastHuman' => $lastHuman, 'firstData' => $first, 'todayVisitors' => $today, 'zeroBuckets' => $zero, 'daysWithoutVisits' => $streak, 'now' => time()];
 }

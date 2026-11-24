@@ -16,6 +16,12 @@ RewriteEngine On
 RewriteCond %{HTTPS} !=on [OR]
 RewriteCond %{HTTP_HOST} ^www\. [NC]
 RewriteRule ^ https://recommendationsites.com%{REQUEST_URI} [L,R=301]
+
+# Pages are served through a small PHP file that records robot visits for the stats
+RewriteCond %{ENV:REDIRECT_STATUS} ^$
+RewriteCond %{REQUEST_URI} !^/(admin|api|assets)/
+RewriteCond %{REQUEST_URI} (/|\.html|\.xml|\.txt)$
+RewriteRule ^ /api/serve.php [L]
 </IfModule>
 
 # Compression

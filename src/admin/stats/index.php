@@ -61,6 +61,20 @@ main{max-width:1320px;margin:0 auto;padding:20px}
 .note{font-size:12px;color:var(--muted);margin-top:6px}
 .err{background:#fff1ee;border:1px solid #ffd1c6;color:#a3361a;padding:14px;border-radius:12px;margin-bottom:18px;display:none}
 .loading{opacity:.5;transition:opacity .2s}
+.alerts{display:grid;gap:10px;margin-bottom:18px}
+.alert{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:14px;font-size:14px;line-height:1.45}
+.alert b{display:block;font-size:15px;margin-bottom:2px}
+.alert.warn{background:#fff8e6;border:1px solid #ffe2a1;color:#6b4a00}
+.alert.bad{background:#fff1ee;border:1px solid #ffd1c6;color:#8a2c14}
+.alert.ok{background:#e9f8f1;border:1px solid #bfe9d5;color:#0b5c3f}
+.alert.info{background:#eef4ff;border:1px solid #cddcff;color:#1f3f8a}
+.alert .ic{font-size:22px;line-height:1}
+.section-title{display:flex;align-items:center;gap:10px;margin:26px 0 12px;font-size:18px;color:var(--ink)}
+.section-title small{font-size:13px;color:var(--muted);font-weight:500}
+.kpis.bots .kpi{background:#f7f9fc;border-color:#e2e8f2}
+.cat{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:#eef1f6;color:#4a5a77;margin-left:6px;vertical-align:1px;text-transform:uppercase;letter-spacing:.03em}
+.cat.ai{background:#efe7ff;color:#5b2fc0}.cat.search{background:#e6efff;color:#1f4fb5}.cat.seo{background:#fff1c9;color:#8a5a00}.cat.social{background:#e9f8f1;color:#0b7f56}.cat.script{background:#ffe9e2;color:#b1401b}
+.row.botrow .fill{background:#e8edf6}
 @media(max-width:1000px){.kpis{grid-template-columns:repeat(2,1fr)}.grid3{grid-template-columns:1fr 1fr}}
 @media(max-width:700px){.grid2,.grid3{grid-template-columns:1fr}.kpi .v{font-size:23px}.live{margin-left:0}main{padding:14px}}
 </style>
@@ -83,12 +97,13 @@ main{max-width:1320px;margin:0 auto;padding:20px}
     <div class="live"><span class="dot"></span><span id="active">0</span>&nbsp;visitantes ahora</div>
   </div>
   <div class="err" id="err"></div>
+  <div class="alerts" id="alerts"></div>
 
   <div class="kpis" id="kpis"></div>
 
   <div class="card">
     <h2><span>Visitas en el tiempo <small id="rangeLabel"></small></span>
-      <span class="legend"><span><i style="background:#0f9d6b"></i>Visitantes</span><span><i style="background:#ffc23d"></i>Páginas vistas</span></span></h2>
+      <span class="legend"><span><i style="background:#0f9d6b"></i>Visitantes</span><span><i style="background:#ffc23d"></i>Páginas vistas</span><span><i style="background:#8b9bb8"></i>Robots</span></span></h2>
     <div id="chart"><div class="tip" id="tip"></div></div>
   </div>
 
@@ -117,6 +132,15 @@ main{max-width:1320px;margin:0 auto;padding:20px}
     <div class="card"><h2>Campañas (UTM)</h2><div id="campaigns"></div>
       <p class="note">Agrega <b>?utm_campaign=nombre</b> a tus enlaces en redes para medirlos aquí.</p></div>
   </div>
+  <h2 class="section-title">🤖 Robots y rastreadores <small>visitas automáticas (no son personas)</small></h2>
+  <div class="kpis bots" id="botKpis"></div>
+  <div class="grid2" style="margin-bottom:18px">
+    <div class="card"><h2>Robots que visitaron tu sitio <small>visitas · última vez</small></h2><div id="botNames"></div></div>
+    <div class="card"><h2>Tipos de robots</h2><div id="botCats"></div>
+      <h2 style="margin-top:18px">Páginas más rastreadas</h2><div id="botPaths"></div>
+      <h2 style="margin-top:18px">⚠️ Páginas no encontradas (404) pedidas por robots</h2><div id="botErrors"></div></div>
+  </div>
+  <p class="note">🔎 <b>Buscadores</b> (Google, Bing…) es bueno: significa que te están indexando. 🤖 <b>IA</b> son rastreadores de ChatGPT, Claude, Perplexity, etc. 🛠️ <b>Herramientas SEO</b> son servicios como Ahrefs o Semrush. ⚙️ <b>Scripts</b> pueden ser escaneos automáticos; si son muchos, avísame.</p>
   <p class="note" style="margin-top:16px">Estadísticas propias guardadas en tu hosting. Sin cookies ni servicios externos. Los visitantes únicos se cuentan por día de forma anónima, así que una persona que vuelve otro día se cuenta de nuevo. Tus visitas como administrador no se cuentan en los navegadores donde inicies sesión. Horario: Colombia.</p>
 </main>
 
@@ -133,6 +157,40 @@ const deviceNames = { Mobile: '📱 Celular', Desktop: '💻 Computador', Tablet
 const channelNames = { Search: '🔎 Buscadores', Direct: '➡️ Directo', Social: '💬 Redes sociales', Referral: '🔗 Otros sitios', Campaign: '📣 Campañas', AI: '🤖 Asistentes IA' };
 
 let range = '30d', from = '', to = '';
+const catNames = { 'Search engine': ['🔎 Buscadores', 'search'], 'AI': ['🤖 Inteligencia artificial', 'ai'], 'SEO tool': ['🛠️ Herramientas SEO', 'seo'], 'Social preview': ['💬 Vista previa redes', 'social'], 'Monitoring': ['📡 Monitoreo', ''], 'Script / unknown': ['⚙️ Scripts / desconocidos', 'script'], 'Other bot': ['❔ Otros robots', ''] };
+const ago = (ts) => { if (!ts) return 'nunca'; const s = Math.floor(Date.now() / 1000 - ts); if (s < 60) return 'hace segundos'; if (s < 3600) return `hace ${Math.floor(s / 60)} min`; if (s < 86400) return `hace ${Math.floor(s / 3600)} h`; return `hace ${Math.floor(s / 86400)} días`; };
+
+function alerts(h, k, b, r) {
+  const out = [];
+  const started = h.firstData && (h.now - h.firstData) > 86400;
+  if (!h.lastHuman) out.push(['info', '📭', 'Todavía no hay visitas de personas', 'Es normal en un sitio nuevo: Google puede tardar días o semanas en empezar a mostrarlo. Comparte tus artículos en redes y registra el sitio en Google Search Console para acelerar.']);
+  else if (h.daysWithoutVisits >= 3) out.push(['bad', '🚨', `${h.daysWithoutVisits} días seguidos sin visitas de personas`, `La última visita fue ${ago(h.lastHuman)}. Revisa que el sitio cargue bien y que el contador funcione. Si todo está bien, comparte contenido para atraer tráfico.`]);
+  else if (h.daysWithoutVisits >= 1) out.push(['warn', '⚠️', 'Hoy todavía no hay visitas de personas', `Última visita de una persona: ${ago(h.lastHuman)}.`]);
+  else out.push(['ok', '✅', `${fmt(h.todayVisitors)} ${h.todayVisitors === 1 ? 'persona ha' : 'personas han'} visitado tu sitio hoy`, `Última visita: ${ago(h.lastHuman)}.`]);
+  if (!r.hourly && started && h.zeroBuckets > 0 && h.lastHuman) out.push(['warn', '📉', `${h.zeroBuckets} de ${r.days} días sin visitas en este periodo`, 'Mira la gráfica para ver cuáles fueron.']);
+  const total = k.pageviews + b.total;
+  if (total > 20 && b.total / total > 0.85) out.push(['info', '🤖', `La mayoría del tráfico son robots (${Math.round((b.total / total) * 100)}%)`, 'Es común en sitios nuevos. Las cifras de personas de arriba ya excluyen a los robots.']);
+  if (b.lastGoogle && (h.now - b.lastGoogle) < 7 * 86400) out.push(['ok', '🔎', `Google visitó tu sitio ${ago(b.lastGoogle)}`, 'Buena señal: Googlebot está rastreando tus páginas para indexarlas.']);
+  else if (started) out.push(['warn', '🔎', 'Google no ha rastreado tu sitio en los últimos 7 días', 'Registra el sitio y envía el sitemap en Google Search Console para que Google lo descubra.']);
+  $('alerts').innerHTML = out.map(([c, i, t, d]) => `<div class="alert ${c}"><span class="ic">${i}</span><div><b>${t}</b>${d}</div></div>`).join('');
+}
+
+function bots(b, k) {
+  const total = k.pageviews + b.total;
+  const items = [
+    ['Visitas de robots', fmt(b.total), change(b.total, b.previous, true)],
+    ['% del tráfico que son robots', total ? Math.round((b.total / total) * 100) + '%' : '0%', '<span class="c flat">personas + robots</span>'],
+    ['Última visita de Google', ago(b.lastGoogle), '<span class="c flat">Googlebot</span>'],
+    ['Última visita de Bing', ago(b.lastBing), '<span class="c flat">Bingbot</span>'],
+  ];
+  $('botKpis').innerHTML = items.map(([l, v, c]) => `<div class="kpi"><div class="l">${l}</div><div class="v">${v}</div>${c}</div>`).join('');
+  const catTag = (c) => { const x = catNames[c] || [c, '']; return `<span class="cat ${x[1]}">${esc(x[0].replace(/^\S+\s/, ''))}</span>`; };
+  list('botNames', b.byName, { h: 'Robot', a: 'Visitas', b: 'Última vez', name: (r) => `${esc(r.name)}${catTag(r.category)}`, bval: (r) => ago(r.last) });
+  list('botCats', b.byCategory, { h: 'Tipo', b: 'Robots', name: (r) => (catNames[r.name] || [esc(r.name)])[0] });
+  list('botPaths', b.paths, { h: 'Página', b: 'Robots' });
+  list('botErrors', b.errors, { h: 'Página', b: 'Robots' });
+  document.querySelectorAll('#botNames .row,#botCats .row,#botPaths .row,#botErrors .row').forEach((x) => x.classList.add('botrow'));
+}
 
 function list(el, rows, opts = {}) {
   const box = $(el);
@@ -172,7 +230,7 @@ function chart(series, hourly) {
   const box = $('chart'); const tip = $('tip');
   box.querySelector('svg')?.remove();
   const W = box.clientWidth, H = box.clientHeight, pl = 40, pr = 10, pt = 10, pb = 28;
-  const max = Math.max(5, ...series.map((s) => Math.max(s.pageviews, s.visitors)));
+  const max = Math.max(5, ...series.map((s) => Math.max(s.pageviews, s.visitors, s.bots || 0)));
   const step = Math.pow(10, Math.floor(Math.log10(max))); const top = Math.ceil(max / step) * step;
   const n = series.length, x = (i) => pl + (n === 1 ? (W - pl - pr) / 2 : (i * (W - pl - pr)) / (n - 1)), y = (v) => pt + (H - pt - pb) * (1 - v / top);
   const path = (k) => series.map((s, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(s[k]).toFixed(1)}`).join('');
@@ -186,6 +244,7 @@ function chart(series, hourly) {
     <linearGradient id="gb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffc23d" stop-opacity=".25"/><stop offset="1" stop-color="#ffc23d" stop-opacity="0"/></linearGradient></defs>
     ${g}<path d="${area('pageviews')}" fill="url(#gb)"/><path d="${path('pageviews')}" fill="none" stroke="#f5a400" stroke-width="2.2"/>
     <path d="${area('visitors')}" fill="url(#ga)"/><path d="${path('visitors')}" fill="none" stroke="#0f9d6b" stroke-width="2.6"/>
+    <path d="${path('bots')}" fill="none" stroke="#8b9bb8" stroke-width="1.8" stroke-dasharray="5 4"/>
     <line id="cursor" y1="${pt}" y2="${H - pb}" stroke="#0b1f1a" stroke-dasharray="3 3" opacity="0"/>
     <rect x="${pl}" y="0" width="${W - pl - pr}" height="${H}" fill="transparent" id="hover"/></svg>`;
   box.insertAdjacentHTML('afterbegin', svg);
@@ -194,8 +253,8 @@ function chart(series, hourly) {
     const r = box.getBoundingClientRect(); const px = e.clientX - r.left;
     const i = Math.max(0, Math.min(n - 1, Math.round(((px - pl) / (W - pl - pr)) * (n - 1))));
     const s = series[i]; cur.setAttribute('x1', x(i)); cur.setAttribute('x2', x(i)); cur.setAttribute('opacity', '.4');
-    tip.style.display = 'block'; tip.style.left = x(i) + 'px'; tip.style.top = y(Math.max(s.pageviews, s.visitors)) + 'px';
-    tip.innerHTML = `<b>${hourly ? s.label : new Date(s.label + 'T12:00').toLocaleDateString('es-CO', { weekday: 'short', day: 'numeric', month: 'short' })}</b><br>👤 ${fmt(s.visitors)} visitantes<br>📄 ${fmt(s.pageviews)} páginas`;
+    tip.style.display = 'block'; tip.style.left = x(i) + 'px'; tip.style.top = y(Math.max(s.pageviews, s.visitors, s.bots || 0)) + 'px';
+    tip.innerHTML = `<b>${hourly ? s.label : new Date(s.label + 'T12:00').toLocaleDateString('es-CO', { weekday: 'short', day: 'numeric', month: 'short' })}</b><br>👤 ${fmt(s.visitors)} visitantes<br>📄 ${fmt(s.pageviews)} páginas<br>🤖 ${fmt(s.bots || 0)} robots`;
   });
   hover.addEventListener('mouseleave', () => { tip.style.display = 'none'; cur.setAttribute('opacity', '0'); });
 }
@@ -231,6 +290,7 @@ async function load() {
     list('clickPlacements', d.clickPlacements, { h: 'Botón', a: 'Clics', name: (c) => esc(placementNames[c.name] || c.name) });
     list('clickPages', d.clickPages, { h: 'Página', a: 'Clics' });
     realtime(d.realtime);
+    bots(d.bots, d.kpis); alerts(d.health, d.kpis, d.bots, r);
   } catch (e) {
     $('err').style.display = 'block'; $('err').textContent = 'No se pudieron cargar las estadísticas: ' + e.message;
   }
