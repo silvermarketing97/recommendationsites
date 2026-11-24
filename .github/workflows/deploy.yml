@@ -33,4 +33,4 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftps
           local-dir: ./_site/
-          server-dir: ${{ secrets.FTP_DIR || './public_html/' }}
+          server-dir: ${{ secrets.FTP_DIR || './' }}

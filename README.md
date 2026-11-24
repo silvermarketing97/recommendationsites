@@ -34,7 +34,7 @@ En el repositorio → **Settings → Secrets and variables → Actions → New r
 | `FTP_SERVER` | `ftp.recommendationsites.com` (o el servidor que muestra HostGator) |
 | `FTP_USERNAME` | tu usuario FTP |
 | `FTP_PASSWORD` | tu contraseña FTP |
-| `FTP_DIR` | *(opcional)* `./public_html/` — si la cuenta FTP ya apunta a public_html, pon `./` |
+| `FTP_DIR` | *(opcional)* por defecto `./` (cuenta FTP que abre en public_html). Si tu cuenta FTP abre en la carpeta principal, pon `./public_html/` |
 
 > Nunca compartas estas contraseñas en un chat. Solo van en los secretos de GitHub.
 
