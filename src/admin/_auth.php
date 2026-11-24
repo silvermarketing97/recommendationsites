@@ -8,6 +8,7 @@
 const RS_MAX_FAILS = 5;          // failed attempts allowed...
 const RS_LOCK_WINDOW = 900;      // ...per 15 minutes, per IP
 const RS_SESSION_HOURS = 12;
+const RS_REMEMBER_DAYS = 30;     // "Remember me" duration
 
 $RS_PRIVATE = __DIR__ . '/_private';
 $RS_CONFIG_FILE = $RS_PRIVATE . '/config.php';
@@ -44,6 +45,57 @@ function rs_logged_in() {
     return !empty($_SESSION['rs_user'])
         && !empty($_SESSION['rs_time'])
         && (time() - $_SESSION['rs_time']) < RS_SESSION_HOURS * 3600;
+}
+
+/* ---------- "Remember me for 30 days" (secure persistent login token) ---------- */
+function rs_remember_file() { global $RS_PRIVATE; return $RS_PRIVATE . '/remember.json'; }
+function rs_remember_load() {
+    $f = rs_remember_file();
+    $d = is_file($f) ? json_decode((string)@file_get_contents($f), true) : [];
+    return is_array($d) ? array_filter($d, fn($t) => ($t['exp'] ?? 0) > time()) : [];
+}
+function rs_remember_save($d) { @file_put_contents(rs_remember_file(), json_encode($d), LOCK_EX); }
+function rs_user_fingerprint($user) {
+    // Changes when the password changes, so old "remember me" tokens stop working
+    foreach ((rs_config()['users'] ?? []) as $u) {
+        if (($u['username'] ?: $u['email']) === $user) return substr(hash('sha256', $u['hash'] ?? ''), 0, 16);
+    }
+    return '';
+}
+function rs_cookie_secure() { return !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'; }
+function rs_remember_issue($user, $selector = null) {
+    $d = rs_remember_load();
+    if ($selector) unset($d[$selector]);
+    $sel = bin2hex(random_bytes(9));
+    $val = bin2hex(random_bytes(24));
+    $exp = time() + RS_REMEMBER_DAYS * 86400;
+    $d[$sel] = ['h' => hash('sha256', $val), 'user' => $user, 'fp' => rs_user_fingerprint($user), 'exp' => $exp];
+    rs_remember_save($d);
+    setcookie('rs_remember', $sel . ':' . $val, ['expires' => $exp, 'path' => '/admin', 'secure' => rs_cookie_secure(), 'httponly' => true, 'samesite' => 'Lax']);
+}
+function rs_remember_forget() {
+    if (!empty($_COOKIE['rs_remember'])) {
+        [$sel] = explode(':', (string)$_COOKIE['rs_remember'] . ':', 2);
+        $d = rs_remember_load(); unset($d[$sel]); rs_remember_save($d);
+    }
+    setcookie('rs_remember', '', ['expires' => time() - 3600, 'path' => '/admin', 'secure' => rs_cookie_secure(), 'httponly' => true, 'samesite' => 'Lax']);
+}
+function rs_remember_try() {
+    if (empty($_COOKIE['rs_remember'])) return false;
+    $parts = explode(':', (string)$_COOKIE['rs_remember'], 2);
+    if (count($parts) !== 2) return false;
+    [$sel, $val] = $parts;
+    $d = rs_remember_load();
+    $t = $d[$sel] ?? null;
+    if (!$t || !hash_equals($t['h'], hash('sha256', $val)) || $t['fp'] !== rs_user_fingerprint($t['user']) || $t['fp'] === '') {
+        rs_remember_forget();
+        return false;
+    }
+    session_regenerate_id(true);
+    $_SESSION['rs_user'] = $t['user'];
+    $_SESSION['rs_time'] = time();
+    rs_remember_issue($t['user'], $sel); // rotate token on every use
+    return true;
 }
 
 function rs_attempts_file() {
@@ -94,6 +146,7 @@ function rs_require_login() {
         $_SESSION['rs_time'] = time(); // sliding session
         return;
     }
+    if (!empty(rs_config()['users']) && rs_remember_try()) return;
     $cfg = rs_config();
     $error = '';
     $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
@@ -116,6 +169,7 @@ function rs_require_login() {
                 session_regenerate_id(true);
                 $_SESSION['rs_user'] = $user;
                 $_SESSION['rs_time'] = time();
+                if (!empty($_POST['remember'])) rs_remember_issue($user);
                 header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?'));
                 exit;
             }
@@ -153,6 +207,8 @@ input:focus{border-color:#0f9d6b;box-shadow:0 0 0 4px rgba(15,157,107,.12)}
 button{width:100%;margin-top:22px;padding:14px;border:0;border-radius:999px;font-weight:800;font-size:16px;cursor:pointer;background:linear-gradient(180deg,#ffd166,#f5a400);color:#2a1d00}
 .err{background:#fff1ee;border:1px solid #ffd1c6;color:#a3361a;padding:10px 12px;border-radius:10px;font-size:14px;margin-bottom:6px}
 .pw{position:relative}.pw span{position:absolute;right:12px;top:12px;cursor:pointer;font-size:13px;color:#5d6f69;user-select:none}
+.remember{display:flex;align-items:center;gap:10px;margin-top:16px;font-size:14px;color:#22302c;cursor:pointer;user-select:none}
+.remember input{width:18px;height:18px;margin:0;padding:0;border:0;box-shadow:none;accent-color:#0f9d6b;cursor:pointer}
 .foot{text-align:center;margin-top:18px;font-size:13px}.foot a{color:#5d6f69}
 </style></head><body>
 <form class="box" method="post" autocomplete="on">
@@ -169,6 +225,7 @@ button{width:100%;margin-top:22px;padding:14px;border:0;border-radius:999px;font
     <input id="login" name="login" type="text" autocomplete="username" required autofocus>
     <label for="password">Password</label>
     <div class="pw"><input id="password" name="password" type="password" autocomplete="current-password" required><span onclick="var i=document.getElementById('password');i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'Show':'Hide'">Show</span></div>
+    <label class="remember"><input type="checkbox" name="remember" value="1" checked> Remember me for 30 days</label>
     <button type="submit">Sign in</button>
   <?php endif; ?>
   <p class="foot"><a href="/">← Back to the website</a></p>

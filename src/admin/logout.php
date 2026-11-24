@@ -1,6 +1,7 @@
 <?php
 require __DIR__ . '/_auth.php';
 rs_start_session();
+rs_remember_forget();
 $_SESSION = [];
 session_destroy();
 setcookie('rs_admin', '', time() - 3600, '/admin');
