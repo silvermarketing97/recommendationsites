@@ -37,6 +37,11 @@ Follow it exactly. The site owner can edit this file to change the rules.
 - **Swagbucks call-to-action:** every article must mention that new members who join through our link get a **$5 welcome bonus**. Insert `{% swagbucks %}` (or `{% swagbucks "Custom headline" %}`) once in the body, ideally after the first third. The end-of-article CTA and disclosure are added automatically by the template. Never write the referral URL by hand; it lives in `src/_data/site.json`.
 - **FAQ:** add 3–5 FAQs in the front matter (`faq:`) answering real questions people search.
 
+## Ads and blocks
+
+- Do not insert ad code in articles; ads are placed automatically from `src/_data/ads.json`.
+- Write the article in the markdown body. Leave the `blocks:` field empty; it is for the owner's manual drag-and-drop edits.
+
 ## Media rules (images + video in every article)
 
 - **Cover image (required):** a free Unsplash photo. Find one with WebFetch on

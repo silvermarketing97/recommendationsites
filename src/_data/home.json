@@ -1,0 +1,49 @@
+{
+  "sections": [
+    {
+      "type": "hero",
+      "eyebrow": "Paid surveys · Side hustles · Money tips",
+      "title": "Make extra money online and offline,",
+      "highlight": "the honest way.",
+      "text": "Tested guides to paid surveys, Swagbucks and real side hustles for readers in the US, UK, Canada, Australia and Ireland. No get-rich-quick nonsense, just what actually pays.",
+      "buttonText": "Get your $5 welcome bonus",
+      "buttonUrl": "",
+      "secondaryText": "Start reading",
+      "secondaryUrl": "#start",
+      "showBonusCard": true,
+      "showFlags": true
+    },
+    { "type": "ad", "slot": "home-1", "format": "horizontal", "code": "" },
+    { "type": "featured", "title": "Start here", "subtitle": "Our most useful guides for beginners." },
+    {
+      "type": "spotlight",
+      "eyebrow": "Our top pick for paid surveys",
+      "title": "Why we recommend Swagbucks first",
+      "text": "It is free, it has paid out to members for years, and it works in all five countries we cover. Surveys are just one way to earn: you also get points for shopping online, answering daily polls and trying apps.",
+      "bullets": [
+        "Free to join, no fees ever",
+        "Redeem for PayPal cash or gift cards (Amazon, Walmart and more)",
+        "Works on desktop and in the mobile app",
+        "**$5 welcome bonus** when you sign up through our link"
+      ],
+      "buttonText": "Join Swagbucks free",
+      "secondaryText": "Read our Swagbucks guides",
+      "secondaryUrl": "/category/swagbucks/",
+      "image": "/assets/img/graphics/ways-to-earn.svg",
+      "imageAlt": "Ways to earn on Swagbucks: surveys, cashback, polls, games and app offers"
+    },
+    { "type": "topics", "title": "Browse by topic" },
+    { "type": "latest", "title": "Latest guides", "count": 9 },
+    { "type": "ad", "slot": "home-2", "format": "horizontal", "code": "" },
+    {
+      "type": "faq",
+      "title": "Quick answers",
+      "items": [
+        { "q": "Can you really make money taking online surveys?", "a": "Yes, but think of it as pocket money, not a salary. Most people earn a few dollars a day from surveys on legit sites like Swagbucks, more if they combine surveys with cashback and other paid tasks." },
+        { "q": "Is Swagbucks legit?", "a": "Yes. Swagbucks has been paying members since 2008 in cash and gift cards and is available in the US, UK, Canada, Australia and Ireland. It is free to join and you never have to pay to take surveys." },
+        { "q": "How do I get the Swagbucks welcome bonus?", "a": "Sign up for a free account through one of our links. New members get a $5 welcome bonus on Swagbucks; the exact terms are set by Swagbucks and shown on the sign-up page." },
+        { "q": "What are the best ways to make money offline?", "a": "Pet sitting, dog walking, babysitting, cleaning, yard work, reselling thrift finds, tutoring and food or grocery delivery are some of the fastest offline side hustles to start with little or no money." }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "colorDark": "#0b1f1a",
+  "colorBrand": "#0f9d6b",
+  "colorBrandDark": "#0b7f56",
+  "colorAccent": "#ffc23d",
+  "colorAccentDark": "#f5a400",
+  "colorSoft": "#f4f8f6",
+  "headingFont": "Plus Jakarta Sans",
+  "bodyFont": "Inter",
+  "radius": 18,
+  "showTopBar": true,
+  "topBarText": "**New to Swagbucks?** Join through our link and get a $5 welcome bonus.",
+  "topBarButton": "Claim it →",
+  "showStickyMobileCta": true
+}

@@ -1,0 +1,10 @@
+{
+  "items": [
+    { "label": "Paid Surveys", "url": "/category/paid-surveys/", "style": "link" },
+    { "label": "Swagbucks", "url": "/category/swagbucks/", "style": "link" },
+    { "label": "Online", "url": "/category/make-money-online/", "style": "link" },
+    { "label": "Offline", "url": "/category/side-hustles/", "style": "link" },
+    { "label": "All guides", "url": "/blog/", "style": "link" },
+    { "label": "Get $5 bonus", "url": "", "style": "button" }
+  ]
+}

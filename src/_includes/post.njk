@@ -4,7 +4,7 @@ bodyClass: is-post
 ---
 {%- set catName = category | categoryName(categories) -%}
 {%- set postUrl = page.url | absUrl(site.url) -%}
-{%- set tocItems = content | toc -%}
+
 <script type="application/ld+json">{{ {
   "@context": "https://schema.org",
   "@graph": [
@@ -61,7 +61,18 @@ bodyClass: is-post
   </figure>
   {% endif %}
 
+      {#- Article body: drag-and-drop blocks if present, otherwise the simple text editor -#}
+      {%- set bodyHtml -%}
+        {%- if blocks and blocks.length -%}
+          {%- set inArticle = true -%}
+          {%- if content | striptags | trim -%}{{ content | safe }}{%- endif -%}
+          {%- for b in blocks -%}{% include "partials/block.njk" %}{%- endfor -%}
+        {%- else -%}
+          {{ content | safe }}
+        {%- endif -%}
+      {%- endset -%}
   <div class="wrap post__layout">
+    {%- set tocItems = bodyHtml | toc -%}
     <aside class="post__side">
       {% if tocItems.length > 2 %}
       <nav class="toc" aria-label="Table of contents">
@@ -74,13 +85,19 @@ bodyClass: is-post
         <p>Welcome bonus when you join Swagbucks through our link.</p>
         <a class="btn btn--gold btn--block" href="{{ site.swagbucksUrl }}" target="_blank" rel="sponsored noopener" data-cta="sidebar">Join free</a>
       </div>
+      {{ ads.sidebar | adSlot(ads.label) | safe }}
+      {{ ads.widgets | widgetsAt("sidebar") | safe }}
     </aside>
 
     <div class="post__body">
       <p class="disclosure"><strong>Disclosure:</strong> This article contains referral links. If you sign up through them we may earn a commission at no cost to you. <a href="/affiliate-disclosure/">How we make money</a>.</p>
 
+      {{ ads.articleTop | adSlot(ads.label) | safe }}
+      {{ ads.widgets | widgetsAt("articleTop") | safe }}
+
+
       <div class="prose">
-        {{ content | safe }}
+        {{ bodyHtml | injectAds(ads) | safe }}
       </div>
 
       {% if videos and videos.length %}
@@ -103,6 +120,9 @@ bodyClass: is-post
         {% endfor %}
       </section>
       {% endif %}
+
+      {{ ads.articleEnd | adSlot(ads.label) | safe }}
+      {{ ads.widgets | widgetsAt("articleEnd") | safe }}
 
       <aside class="cta-box cta-box--end" aria-label="Swagbucks offer">
         <div class="cta-box__badge">{{ site.swagbucksBonus }}<small>bonus</small></div>

@@ -24,9 +24,13 @@
 <link rel="alternate" type="application/rss+xml" title="{{ site.name }}" href="/feed.xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+{%- set hf = (theme.headingFont or "Plus Jakarta Sans") -%}{%- set bf = (theme.bodyFont or "Inter") -%}
+<link href="https://fonts.googleapis.com/css2?family={{ hf | replace(' ', '+') }}:wght@400;700{% if bf != hf %}&family={{ bf | replace(' ', '+') }}:wght@400;700{% endif %}&display=swap" rel="stylesheet">
 <link rel="preconnect" href="https://images.unsplash.com">
 <link rel="stylesheet" href="/assets/css/style.css">
+<style>:root{--ink:{{ theme.colorDark }};--green:{{ theme.colorBrand }};--green-2:{{ theme.colorBrandDark }};--gold:{{ theme.colorAccent }};--gold-2:{{ theme.colorAccentDark }};--soft:{{ theme.colorSoft }};--radius:{{ theme.radius }}px;--font-head:"{{ hf }}",system-ui,sans-serif;--font-body:"{{ bf }}",system-ui,sans-serif}</style>
+{{ ads.headCode | safe }}
+{{ ads.widgets | widgetsAt("head") | safe }}
 <script type="application/ld+json">{{ {
   "@context": "https://schema.org",
   "@graph": [
@@ -42,12 +46,12 @@
 </head>
 <body class="{{ bodyClass }}">
 <a class="skip" href="#main">Skip to content</a>
-<div class="topbar">
+{% if theme.showTopBar %}<div class="topbar">
   <div class="wrap topbar__in">
-    <span><strong>New to Swagbucks?</strong> Join through our link and get a {{ site.swagbucksBonus }} welcome bonus.</span>
-    <a href="{{ site.swagbucksUrl }}" target="_blank" rel="sponsored noopener" data-cta="topbar">Claim it &rarr;</a>
+    <span>{{ theme.topBarText | mdInline | safe }}</span>
+    <a href="{{ site.swagbucksUrl }}" target="_blank" rel="sponsored noopener" data-cta="topbar">{{ theme.topBarButton }}</a>
   </div>
-</div>
+</div>{% endif %}
 <header class="header">
   <div class="wrap header__in">
     <a class="logo" href="/" aria-label="{{ site.name }} home">
@@ -56,20 +60,25 @@
     </a>
     <button class="nav-toggle" aria-expanded="false" aria-controls="nav" aria-label="Open menu"><span></span><span></span><span></span></button>
     <nav id="nav" class="nav" aria-label="Main">
-      <a href="/category/paid-surveys/">Paid Surveys</a>
-      <a href="/category/swagbucks/">Swagbucks</a>
-      <a href="/category/make-money-online/">Online</a>
-      <a href="/category/side-hustles/">Offline</a>
-      <a href="/blog/">All guides</a>
-      <a class="btn btn--sm btn--gold" href="{{ site.swagbucksUrl }}" target="_blank" rel="sponsored noopener" data-cta="nav">Get {{ site.swagbucksBonus }} bonus</a>
+      {%- for item in nav.items %}
+      {%- set u = item.url or site.swagbucksUrl -%}
+      {%- set ref = (u == site.swagbucksUrl) -%}
+      <a{% if item.style == "button" %} class="btn btn--sm btn--gold"{% endif %} href="{{ u }}"{% if ref %} target="_blank" rel="sponsored noopener" data-cta="nav"{% endif %}>{{ item.label }}</a>
+      {%- endfor %}
     </nav>
   </div>
 </header>
 
+{%- set hb = ads.headerBanner | adSlot(ads.label) -%}
+{% if hb %}<div class="wrap ad-row">{{ hb | safe }}</div>{% endif %}
+{{ ads.widgets | widgetsAt("afterHeader") | safe }}
 <main id="main">
 {{ content | safe }}
 </main>
 
+{%- set fb = ads.footerBanner | adSlot(ads.label) -%}
+{% if fb %}<div class="wrap ad-row">{{ fb | safe }}</div>{% endif %}
+{{ ads.widgets | widgetsAt("beforeFooter") | safe }}
 <footer class="footer">
   <div class="wrap footer__grid">
     <div>
@@ -95,9 +104,11 @@
   </div>
 </footer>
 
-<a class="sticky-cta" href="{{ site.swagbucksUrl }}" target="_blank" rel="sponsored noopener" data-cta="sticky">
+{% if theme.showStickyMobileCta %}<a class="sticky-cta" href="{{ site.swagbucksUrl }}" target="_blank" rel="sponsored noopener" data-cta="sticky">
   <span><b>{{ site.swagbucksBonus }} welcome bonus</b> on Swagbucks</span><span class="sticky-cta__go">Join free</span>
-</a>
+</a>{% endif %}
 <script src="/assets/js/main.js" defer></script>
+{{ ads.bodyEndCode | safe }}
+{{ ads.widgets | widgetsAt("bodyEnd") | safe }}
 </body>
 </html>

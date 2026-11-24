@@ -1,0 +1,14 @@
+{
+  "headCode": "",
+  "bodyEndCode": "",
+  "adsTxt": "",
+  "label": "Advertisement",
+  "headerBanner": { "enabled": false, "format": "horizontal", "mobile": true, "code": "" },
+  "articleTop": { "enabled": false, "format": "horizontal", "mobile": true, "code": "" },
+  "inArticle": { "enabled": false, "format": "rectangle", "mobile": true, "everyHeadings": 2, "max": 3, "code": "" },
+  "articleEnd": { "enabled": false, "format": "horizontal", "mobile": true, "code": "" },
+  "sidebar": { "enabled": false, "format": "rectangle", "mobile": false, "code": "" },
+  "listPages": { "enabled": false, "format": "horizontal", "mobile": true, "code": "" },
+  "footerBanner": { "enabled": false, "format": "horizontal", "mobile": true, "code": "" },
+  "widgets": []
+}

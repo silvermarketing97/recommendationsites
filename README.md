@@ -47,6 +47,22 @@ En el repositorio → **Settings → Secrets and variables → Actions → New r
 
 Desde ahí puedes crear, editar o borrar artículos, subir imágenes, cambiar páginas, el link de referido, el bono y toda la configuración. Cada cambio se publica solo en 1–2 minutos.
 
+## Qué puedes editar desde /admin
+
+| Sección del panel | Qué haces ahí |
+|---|---|
+| **Articles** | Crear, editar, borrar artículos. Además del texto, puedes agregar **bloques arrastrables** (texto, imagen, video, botón, recuadro de Swagbucks, tip/aviso, preguntas, gadget HTML, anuncio, espacio) y reordenarlos arrastrando ☰ |
+| **🏠 Home page** | La página de inicio completa por secciones: arrástralas para cambiar el orden, agrega o quita secciones |
+| **📢 Ads & HTML widgets** | Espacios de publicidad: banner bajo el menú, arriba del artículo, **dentro del artículo** (automático cada N secciones), final del artículo, barra lateral, páginas de listado y antes del pie. Formatos horizontal, rectangular, cuadrado y vertical. También código en `<head>`, `ads.txt` y gadgets HTML ilimitados |
+| **🎨 Design & menu** | Colores, tipografías, bordes, barra superior, botón fijo en celular y el menú (arrastrable) |
+| **Pages** | About, Contact, privacidad, términos, aviso de afiliados |
+| **Site settings** | Link de referido, monto del bono, Google Analytics, Search Console |
+
+### Ejemplo: activar Google AdSense
+1. Pega el script de AdSense en **Ads & HTML widgets → Code inside head**.
+2. Pega la línea que te da AdSense en **ads.txt content**.
+3. En cada espacio (por ejemplo *Inside articles*), marca **Enabled** y pega el código del bloque de anuncio.
+
 ## Archivos importantes
 
 | Archivo | Qué controla |

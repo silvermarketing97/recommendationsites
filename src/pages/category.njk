@@ -21,6 +21,7 @@ tags: []
 </section>
 <section class="section">
   <div class="wrap">
+    {{ ads.listPages | adSlot(ads.label) | safe }}
     {% if list.length %}
     <div class="grid grid--3">{% for post in list %}{% include "partials/card.njk" %}{% endfor %}</div>
     {% else %}

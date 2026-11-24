@@ -122,6 +122,43 @@ export default function (eleventyConfig) {
     return c ? c.name : slug;
   });
 
+  // Markdown filter for block text
+  eleventyConfig.addFilter("md", (str) => md.render(String(str || "")));
+  eleventyConfig.addFilter("mdInline", (str) => md.renderInline(String(str || "")));
+
+  // ---------- Ads & HTML widgets ----------
+  const adBox = (slot, label = "Advertisement") => {
+    if (!slot || !slot.code || slot.enabled === false) return "";
+    const fmt = escapeHtml(slot.format || "horizontal");
+    const hideMobile = slot.mobile === false ? " ad--desktop-only" : "";
+    return `<div class="ad ad--${fmt}${hideMobile}"><span class="ad__label">${escapeHtml(label)}</span><div class="ad__slot">${slot.code}</div></div>`;
+  };
+  eleventyConfig.addFilter("adSlot", (slot, label) => adBox(slot, label));
+  // Widgets placed by position
+  eleventyConfig.addFilter("widgetsAt", (widgets, place) =>
+    (widgets || [])
+      .filter((w) => w && w.enabled !== false && w.placement === place && w.code)
+      .map((w) => (w.wrap === false ? w.code : `<div class="widget widget--${escapeHtml(place)}">${w.code}</div>`))
+      .join("\n")
+  );
+  // Insert in-article ads before every Nth H2 (starting at the 2nd heading)
+  eleventyConfig.addFilter("injectAds", (html, ads) => {
+    const slot = ads && ads.inArticle;
+    const box = adBox(slot, ads && ads.label);
+    if (!box) return html;
+    const every = Math.max(1, parseInt(slot.everyHeadings || 2, 10));
+    const max = Math.max(1, parseInt(slot.max || 3, 10));
+    let count = 0, placed = 0;
+    return String(html).replace(/<h2[\s>]/g, (m) => {
+      count++;
+      if (count > 1 && (count - 1) % every === 0 && placed < max) {
+        placed++;
+        return box + m;
+      }
+      return m;
+    });
+  });
+
   // ---------- Shortcodes (usable inside articles) ----------
   // {% swagbucks %}  -> Swagbucks call-to-action box
   eleventyConfig.addShortcode("swagbucks", function (headline) {

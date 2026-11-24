@@ -1,127 +1,1239 @@
-# ============================================================
-#  Recommendation Sites – admin panel configuration
-#  Panel URL: https://recommendationsites.com/admin/
-# ============================================================
+# Recommendation Sites – admin panel configuration (Sveltia CMS)
+# Panel URL: https://recommendationsites.com/admin/
+
 backend:
   name: github
   repo: silvermarketing97/recommendationsites
   branch: main
   commit_messages:
-    create: "New article: {{slug}}"
-    update: "Edit: {{slug}}"
-    delete: "Delete: {{slug}}"
-    uploadMedia: "Upload: {{path}}"
-    deleteMedia: "Delete media: {{path}}"
-
+    create: 'New article: {{slug}}'
+    update: 'Edit: {{slug}}'
+    delete: 'Delete: {{slug}}'
+    uploadMedia: 'Upload: {{path}}'
+    deleteMedia: 'Delete media: {{path}}'
 site_url: https://recommendationsites.com
 display_url: https://recommendationsites.com
 logo_url: /assets/img/logo.svg
 locale: en
-
 media_folder: src/assets/uploads
 public_folder: /assets/uploads
-
 slug:
   encoding: ascii
   clean_accents: true
-
 collections:
-  # ---------------- ARTICLES ----------------
-  - name: posts
-    label: Articles
-    label_singular: Article
-    folder: src/posts
-    create: true
-    slug: "{{slug}}"
-    extension: md
-    format: frontmatter
-    sortable_fields: [date, title, category]
-    summary: "{{title}} — {{category}} — {{date | date('YYYY-MM-DD')}}"
-    view_filters:
-      - { label: Swagbucks, field: category, pattern: swagbucks }
-      - { label: Paid surveys, field: category, pattern: paid-surveys }
-      - { label: Drafts, field: draft, pattern: true }
+- name: posts
+  label: Articles
+  label_singular: Article
+  folder: src/posts
+  create: true
+  slug: '{{slug}}'
+  extension: md
+  format: frontmatter
+  sortable_fields:
+  - date
+  - title
+  - category
+  summary: '{{title}} — {{category}} — {{date | date(''YYYY-MM-DD'')}}'
+  view_filters:
+  - label: Swagbucks
+    field: category
+    pattern: swagbucks
+  - label: Paid surveys
+    field: category
+    pattern: paid-surveys
+  - label: Drafts
+    field: draft
+    pattern: true
+  fields:
+  - name: title
+    label: Title (H1, ideally 50–65 characters)
+    widget: string
+  - name: description
+    label: Meta description (140–160 characters, shown on Google)
+    widget: text
+  - name: date
+    label: Publish date
+    widget: datetime
+    format: YYYY-MM-DDTHH:mm:ssZ
+  - name: updated
+    label: Last updated
+    widget: datetime
+    required: false
+    format: YYYY-MM-DDTHH:mm:ssZ
+  - name: category
+    label: Category
+    widget: select
+    options:
+    - label: Paid Surveys
+      value: paid-surveys
+    - label: Swagbucks
+      value: swagbucks
+    - label: Make Money Online
+      value: make-money-online
+    - label: Offline Side Hustles
+      value: side-hustles
+    - label: Money Tips
+      value: money-tips
+  - name: tags
+    label: Tags
+    widget: list
+    required: false
+    default: []
+  - name: featured
+    label: Featured on home page
+    widget: boolean
+    default: false
+  - name: draft
+    label: Draft (hidden from the site)
+    widget: boolean
+    default: false
+  - name: image
+    label: Cover image (upload or paste an Unsplash image URL)
+    widget: image
+    required: false
+  - name: imageAlt
+    label: Cover image description (alt text)
+    widget: string
+    required: false
+  - name: imageCredit
+    label: Photo credit (photographer name)
+    widget: string
+    required: false
+  - name: imageCreditUrl
+    label: Photographer profile URL
+    widget: string
+    required: false
+  - name: videos
+    label: YouTube videos (shown after the article)
+    widget: list
+    required: false
     fields:
-      - { name: title, label: "Title (H1, ideally 50–65 characters)", widget: string }
-      - { name: description, label: "Meta description (140–160 characters, shown on Google)", widget: text }
-      - { name: date, label: Publish date, widget: datetime, format: "YYYY-MM-DDTHH:mm:ssZ" }
-      - { name: updated, label: Last updated, widget: datetime, required: false, format: "YYYY-MM-DDTHH:mm:ssZ" }
-      - name: category
-        label: Category
+    - name: id
+      label: YouTube video ID (the part after watch?v=)
+      widget: string
+    - name: title
+      label: Video title
+      widget: string
+    - name: channel
+      label: Channel name
+      widget: string
+      required: false
+  - name: faq
+    label: FAQ (also sent to Google as structured data)
+    widget: list
+    required: false
+    fields:
+    - name: q
+      label: Question
+      widget: string
+    - name: a
+      label: Answer
+      widget: text
+  - name: body
+    label: Article text
+    widget: markdown
+    required: false
+  - name: blocks
+    label: 🧱 Drag-and-drop blocks (optional – drag ☰ to reorder; shown after the text above)
+    widget: list
+    required: false
+    collapsed: true
+    types:
+    - name: text
+      label: 📝 Text
+      widget: object
+      fields:
+      - name: title
+        label: Heading (optional)
+        widget: string
+        required: false
+      - name: body
+        label: Text
+        widget: markdown
+      - name: background
+        label: Background (home only)
+        widget: select
+        default: white
+        options:
+        - white
+        - soft
+        - dark
+        required: false
+      - name: align
+        label: Alignment
+        widget: select
+        default: left
+        options:
+        - left
+        - center
+        required: false
+      - name: width
+        label: Width
+        widget: select
+        default: narrow
+        options:
+        - narrow
+        - wide
+        required: false
+    - name: image
+      label: 🖼️ Image
+      widget: object
+      fields:
+      - name: src
+        label: Image
+        widget: image
+      - name: alt
+        label: Image description (alt text)
+        widget: string
+      - name: caption
+        label: Caption
+        widget: string
+        required: false
+      - name: credit
+        label: Photo credit
+        widget: string
+        required: false
+      - name: creditUrl
+        label: Photo credit link
+        widget: string
+        required: false
+      - name: link
+        label: Link when clicked
+        widget: string
+        required: false
+      - name: width
+        label: Width
+        widget: select
+        default: narrow
+        options:
+        - narrow
+        - wide
+        required: false
+    - name: video
+      label: ▶️ YouTube video
+      widget: object
+      fields:
+      - name: id
+        label: YouTube video ID (after watch?v=)
+        widget: string
+      - name: title
+        label: Video title
+        widget: string
+    - name: swagbucks
+      label: ⭐ Swagbucks $5 bonus box
+      widget: object
+      fields:
+      - name: headline
+        label: Headline (optional)
+        widget: string
+        required: false
+    - name: cta
+      label: 🔘 Button / call to action
+      widget: object
+      fields:
+      - name: title
+        label: Title
+        widget: string
+        required: false
+      - name: text
+        label: Text
+        widget: text
+        required: false
+      - name: buttonText
+        label: Button text
+        widget: string
+      - name: url
+        label: Button link (empty = your Swagbucks referral link)
+        widget: string
+        required: false
+      - name: newTab
+        label: Open in new tab
+        widget: boolean
+        default: false
+        required: false
+    - name: callout
+      label: 💡 Tip / warning / summary box
+      widget: object
+      fields:
+      - name: style
+        label: Style
+        widget: select
+        default: tip
+        options:
+        - label: 💡 Pro tip (yellow)
+          value: tip
+        - label: ⚠️ Warning (red)
+          value: warn
+        - label: ✅ Key summary (green)
+          value: key
+      - name: body
+        label: Text
+        widget: markdown
+    - name: faq
+      label: ❓ FAQ
+      widget: object
+      fields:
+      - name: title
+        label: Title
+        widget: string
+        required: false
+      - name: items
+        label: Questions
+        widget: list
+        fields:
+        - name: q
+          label: Question
+          widget: string
+        - name: a
+          label: Answer
+          widget: text
+    - name: html
+      label: 🧩 HTML gadget / embed
+      widget: object
+      fields:
+      - name: code
+        label: HTML code (paste any ad, widget or embed code)
+        widget: code
+        default_language: html
+        allow_language_selection: false
+        output_code_only: true
+        required: false
+      - name: width
+        label: Width (home only)
+        widget: select
+        default: narrow
+        options:
+        - narrow
+        - wide
+        - raw
+        required: false
+    - name: ad
+      label: 📢 Advertisement
+      widget: object
+      fields:
+      - name: format
+        label: Ad format
+        widget: select
+        default: horizontal
+        options:
+        - label: Horizontal banner (728x90 / 970x90)
+          value: horizontal
+        - label: Rectangle (300x250 / 336x280)
+          value: rectangle
+        - label: Square (250x250)
+          value: square
+        - label: Vertical (300x600)
+          value: vertical
+      - name: mobile
+        label: Show on mobile
+        widget: boolean
+        default: true
+      - name: code
+        label: HTML code (paste any ad, widget or embed code)
+        widget: code
+        default_language: html
+        allow_language_selection: false
+        output_code_only: true
+        required: false
+    - name: spacer
+      label: ↕️ Spacer
+      widget: object
+      fields:
+      - name: size
+        label: Height in pixels
+        widget: number
+        default: 40
+- name: home
+  label: 🏠 Home page
+  files:
+  - name: home
+    label: Home page sections (drag ☰ to reorder)
+    file: src/_data/home.json
+    format: json
+    fields:
+    - name: sections
+      label: Sections
+      widget: list
+      collapsed: true
+      types:
+      - name: hero
+        label: 🦸 Hero (top banner)
+        widget: object
+        fields:
+        - name: eyebrow
+          label: Small label
+          widget: string
+          required: false
+        - name: title
+          label: Title
+          widget: string
+        - name: highlight
+          label: Highlighted words (green)
+          widget: string
+          required: false
+        - name: text
+          label: Text
+          widget: text
+          required: false
+        - name: buttonText
+          label: Main button text
+          widget: string
+          required: false
+        - name: buttonUrl
+          label: Main button link (empty = Swagbucks referral)
+          widget: string
+          required: false
+        - name: secondaryText
+          label: Second button text
+          widget: string
+          required: false
+        - name: secondaryUrl
+          label: Second button link
+          widget: string
+          required: false
+        - name: showBonusCard
+          label: Show $5 bonus card
+          widget: boolean
+          default: true
+        - name: showFlags
+          label: Show country flags
+          widget: boolean
+          default: true
+      - name: featured
+        label: 📌 Featured articles
+        widget: object
+        fields:
+        - name: title
+          label: Title
+          widget: string
+        - name: subtitle
+          label: Subtitle
+          widget: string
+          required: false
+      - name: spotlight
+        label: 🌟 Spotlight (dark promo band)
+        widget: object
+        fields:
+        - name: eyebrow
+          label: Small label
+          widget: string
+          required: false
+        - name: title
+          label: Title
+          widget: string
+        - name: text
+          label: Text
+          widget: markdown
+          required: false
+        - name: bullets
+          label: Check-list items
+          widget: list
+          required: false
+        - name: buttonText
+          label: Main button text
+          widget: string
+          required: false
+        - name: buttonUrl
+          label: Main button link (empty = Swagbucks referral)
+          widget: string
+          required: false
+        - name: secondaryText
+          label: Second button text
+          widget: string
+          required: false
+        - name: secondaryUrl
+          label: Second button link
+          widget: string
+          required: false
+        - name: image
+          label: Image
+          widget: image
+          required: false
+        - name: imageAlt
+          label: Image description
+          widget: string
+          required: false
+      - name: topics
+        label: 🗂️ Topics grid
+        widget: object
+        fields:
+        - name: title
+          label: Title
+          widget: string
+      - name: latest
+        label: 🆕 Latest articles
+        widget: object
+        fields:
+        - name: title
+          label: Title
+          widget: string
+        - name: count
+          label: How many
+          widget: number
+          default: 9
+        - name: category
+          label: Only this category (optional)
+          widget: select
+          required: false
+          options:
+          - paid-surveys
+          - swagbucks
+          - make-money-online
+          - side-hustles
+          - money-tips
+      - name: text
+        label: 📝 Text
+        widget: object
+        fields:
+        - name: title
+          label: Heading (optional)
+          widget: string
+          required: false
+        - name: body
+          label: Text
+          widget: markdown
+        - name: background
+          label: Background (home only)
+          widget: select
+          default: white
+          options:
+          - white
+          - soft
+          - dark
+          required: false
+        - name: align
+          label: Alignment
+          widget: select
+          default: left
+          options:
+          - left
+          - center
+          required: false
+        - name: width
+          label: Width
+          widget: select
+          default: narrow
+          options:
+          - narrow
+          - wide
+          required: false
+      - name: image
+        label: 🖼️ Image
+        widget: object
+        fields:
+        - name: src
+          label: Image
+          widget: image
+        - name: alt
+          label: Image description (alt text)
+          widget: string
+        - name: caption
+          label: Caption
+          widget: string
+          required: false
+        - name: credit
+          label: Photo credit
+          widget: string
+          required: false
+        - name: creditUrl
+          label: Photo credit link
+          widget: string
+          required: false
+        - name: link
+          label: Link when clicked
+          widget: string
+          required: false
+        - name: width
+          label: Width
+          widget: select
+          default: narrow
+          options:
+          - narrow
+          - wide
+          required: false
+      - name: video
+        label: ▶️ YouTube video
+        widget: object
+        fields:
+        - name: id
+          label: YouTube video ID (after watch?v=)
+          widget: string
+        - name: title
+          label: Video title
+          widget: string
+      - name: swagbucks
+        label: ⭐ Swagbucks $5 bonus box
+        widget: object
+        fields:
+        - name: headline
+          label: Headline (optional)
+          widget: string
+          required: false
+      - name: cta
+        label: 🔘 Button / call to action
+        widget: object
+        fields:
+        - name: title
+          label: Title
+          widget: string
+          required: false
+        - name: text
+          label: Text
+          widget: text
+          required: false
+        - name: buttonText
+          label: Button text
+          widget: string
+        - name: url
+          label: Button link (empty = your Swagbucks referral link)
+          widget: string
+          required: false
+        - name: newTab
+          label: Open in new tab
+          widget: boolean
+          default: false
+          required: false
+      - name: faq
+        label: ❓ FAQ
+        widget: object
+        fields:
+        - name: title
+          label: Title
+          widget: string
+          required: false
+        - name: items
+          label: Questions
+          widget: list
+          fields:
+          - name: q
+            label: Question
+            widget: string
+          - name: a
+            label: Answer
+            widget: text
+      - name: html
+        label: 🧩 HTML gadget / embed
+        widget: object
+        fields:
+        - name: code
+          label: HTML code (paste any ad, widget or embed code)
+          widget: code
+          default_language: html
+          allow_language_selection: false
+          output_code_only: true
+          required: false
+        - name: width
+          label: Width (home only)
+          widget: select
+          default: narrow
+          options:
+          - narrow
+          - wide
+          - raw
+          required: false
+      - name: ad
+        label: 📢 Advertisement
+        widget: object
+        fields:
+        - name: format
+          label: Ad format
+          widget: select
+          default: horizontal
+          options:
+          - label: Horizontal banner (728x90 / 970x90)
+            value: horizontal
+          - label: Rectangle (300x250 / 336x280)
+            value: rectangle
+          - label: Square (250x250)
+            value: square
+          - label: Vertical (300x600)
+            value: vertical
+        - name: mobile
+          label: Show on mobile
+          widget: boolean
+          default: true
+        - name: code
+          label: HTML code (paste any ad, widget or embed code)
+          widget: code
+          default_language: html
+          allow_language_selection: false
+          output_code_only: true
+          required: false
+      - name: spacer
+        label: ↕️ Spacer
+        widget: object
+        fields:
+        - name: size
+          label: Height in pixels
+          widget: number
+          default: 40
+- name: ads
+  label: 📢 Ads & HTML widgets
+  editor:
+    preview: false
+  files:
+  - name: ads
+    label: Advertising spaces
+    file: src/_data/ads.json
+    format: json
+    fields:
+    - name: label
+      label: Label shown above ads
+      widget: string
+      default: Advertisement
+    - name: headCode
+      label: Code inside <head> (e.g. Google AdSense auto-ads script, verification tags)
+      widget: code
+      default_language: html
+      allow_language_selection: false
+      output_code_only: true
+      required: false
+    - name: bodyEndCode
+      label: Code at the end of every page (chat widgets, pixels, pop-unders)
+      widget: code
+      default_language: html
+      allow_language_selection: false
+      output_code_only: true
+      required: false
+    - name: adsTxt
+      label: ads.txt content (required by AdSense and most ad networks)
+      widget: text
+      required: false
+    - name: headerBanner
+      label: Banner under the menu (all pages)
+      widget: object
+      collapsed: true
+      fields:
+      - name: enabled
+        label: Enabled
+        widget: boolean
+        default: false
+      - name: format
+        label: Ad format
+        widget: select
+        default: horizontal
+        options:
+        - label: Horizontal banner (728x90 / 970x90)
+          value: horizontal
+        - label: Rectangle (300x250 / 336x280)
+          value: rectangle
+        - label: Square (250x250)
+          value: square
+        - label: Vertical (300x600)
+          value: vertical
+      - name: mobile
+        label: Show on mobile
+        widget: boolean
+        default: true
+      - name: code
+        label: HTML code (paste any ad, widget or embed code)
+        widget: code
+        default_language: html
+        allow_language_selection: false
+        output_code_only: true
+        required: false
+    - name: articleTop
+      label: Top of every article
+      widget: object
+      collapsed: true
+      fields:
+      - name: enabled
+        label: Enabled
+        widget: boolean
+        default: false
+      - name: format
+        label: Ad format
+        widget: select
+        default: horizontal
+        options:
+        - label: Horizontal banner (728x90 / 970x90)
+          value: horizontal
+        - label: Rectangle (300x250 / 336x280)
+          value: rectangle
+        - label: Square (250x250)
+          value: square
+        - label: Vertical (300x600)
+          value: vertical
+      - name: mobile
+        label: Show on mobile
+        widget: boolean
+        default: true
+      - name: code
+        label: HTML code (paste any ad, widget or embed code)
+        widget: code
+        default_language: html
+        allow_language_selection: false
+        output_code_only: true
+        required: false
+    - name: inArticle
+      label: Inside articles (between sections, automatic)
+      widget: object
+      collapsed: true
+      fields:
+      - name: enabled
+        label: Enabled
+        widget: boolean
+        default: false
+      - name: format
+        label: Ad format
+        widget: select
+        default: horizontal
+        options:
+        - label: Horizontal banner (728x90 / 970x90)
+          value: horizontal
+        - label: Rectangle (300x250 / 336x280)
+          value: rectangle
+        - label: Square (250x250)
+          value: square
+        - label: Vertical (300x600)
+          value: vertical
+      - name: mobile
+        label: Show on mobile
+        widget: boolean
+        default: true
+      - name: everyHeadings
+        label: Insert an ad every N sections
+        widget: number
+        default: 2
+        value_type: int
+      - name: max
+        label: Maximum ads per article
+        widget: number
+        default: 3
+        value_type: int
+      - name: code
+        label: HTML code (paste any ad, widget or embed code)
+        widget: code
+        default_language: html
+        allow_language_selection: false
+        output_code_only: true
+        required: false
+    - name: articleEnd
+      label: End of every article
+      widget: object
+      collapsed: true
+      fields:
+      - name: enabled
+        label: Enabled
+        widget: boolean
+        default: false
+      - name: format
+        label: Ad format
+        widget: select
+        default: horizontal
+        options:
+        - label: Horizontal banner (728x90 / 970x90)
+          value: horizontal
+        - label: Rectangle (300x250 / 336x280)
+          value: rectangle
+        - label: Square (250x250)
+          value: square
+        - label: Vertical (300x600)
+          value: vertical
+      - name: mobile
+        label: Show on mobile
+        widget: boolean
+        default: true
+      - name: code
+        label: HTML code (paste any ad, widget or embed code)
+        widget: code
+        default_language: html
+        allow_language_selection: false
+        output_code_only: true
+        required: false
+    - name: sidebar
+      label: Article sidebar (desktop)
+      widget: object
+      collapsed: true
+      fields:
+      - name: enabled
+        label: Enabled
+        widget: boolean
+        default: false
+      - name: format
+        label: Ad format
+        widget: select
+        default: horizontal
+        options:
+        - label: Horizontal banner (728x90 / 970x90)
+          value: horizontal
+        - label: Rectangle (300x250 / 336x280)
+          value: rectangle
+        - label: Square (250x250)
+          value: square
+        - label: Vertical (300x600)
+          value: vertical
+      - name: mobile
+        label: Show on mobile
+        widget: boolean
+        default: false
+      - name: code
+        label: HTML code (paste any ad, widget or embed code)
+        widget: code
+        default_language: html
+        allow_language_selection: false
+        output_code_only: true
+        required: false
+    - name: listPages
+      label: Top of blog and category pages
+      widget: object
+      collapsed: true
+      fields:
+      - name: enabled
+        label: Enabled
+        widget: boolean
+        default: false
+      - name: format
+        label: Ad format
+        widget: select
+        default: horizontal
+        options:
+        - label: Horizontal banner (728x90 / 970x90)
+          value: horizontal
+        - label: Rectangle (300x250 / 336x280)
+          value: rectangle
+        - label: Square (250x250)
+          value: square
+        - label: Vertical (300x600)
+          value: vertical
+      - name: mobile
+        label: Show on mobile
+        widget: boolean
+        default: true
+      - name: code
+        label: HTML code (paste any ad, widget or embed code)
+        widget: code
+        default_language: html
+        allow_language_selection: false
+        output_code_only: true
+        required: false
+    - name: footerBanner
+      label: Banner above the footer (all pages)
+      widget: object
+      collapsed: true
+      fields:
+      - name: enabled
+        label: Enabled
+        widget: boolean
+        default: false
+      - name: format
+        label: Ad format
+        widget: select
+        default: horizontal
+        options:
+        - label: Horizontal banner (728x90 / 970x90)
+          value: horizontal
+        - label: Rectangle (300x250 / 336x280)
+          value: rectangle
+        - label: Square (250x250)
+          value: square
+        - label: Vertical (300x600)
+          value: vertical
+      - name: mobile
+        label: Show on mobile
+        widget: boolean
+        default: true
+      - name: code
+        label: HTML code (paste any ad, widget or embed code)
+        widget: code
+        default_language: html
+        allow_language_selection: false
+        output_code_only: true
+        required: false
+    - name: widgets
+      label: 🧩 Extra HTML widgets / gadgets (add as many as you want)
+      widget: list
+      required: false
+      collapsed: true
+      summary: '{{name}} — {{placement}}'
+      fields:
+      - name: name
+        label: Name (for you)
+        widget: string
+      - name: enabled
+        label: Enabled
+        widget: boolean
+        default: true
+      - name: placement
+        label: Where
         widget: select
         options:
-          - { label: Paid Surveys, value: paid-surveys }
-          - { label: Swagbucks, value: swagbucks }
-          - { label: Make Money Online, value: make-money-online }
-          - { label: Offline Side Hustles, value: side-hustles }
-          - { label: Money Tips, value: money-tips }
-      - { name: tags, label: Tags, widget: list, required: false, default: [] }
-      - { name: featured, label: "Featured on home page", widget: boolean, default: false }
-      - { name: draft, label: "Draft (hidden from the site)", widget: boolean, default: false }
-      - { name: image, label: "Cover image (upload or paste an Unsplash image URL)", widget: image, required: false }
-      - { name: imageAlt, label: Cover image description (alt text), widget: string, required: false }
-      - { name: imageCredit, label: Photo credit (photographer name), widget: string, required: false }
-      - { name: imageCreditUrl, label: Photographer profile URL, widget: string, required: false }
-      - name: videos
-        label: YouTube videos (shown after the article)
-        widget: list
+        - label: Inside <head>
+          value: head
+        - label: Under the menu (all pages)
+          value: afterHeader
+        - label: Top of articles
+          value: articleTop
+        - label: End of articles
+          value: articleEnd
+        - label: Article sidebar
+          value: sidebar
+        - label: Above the footer (all pages)
+          value: beforeFooter
+        - label: End of page (scripts)
+          value: bodyEnd
+      - name: wrap
+        label: Wrap in a box (turn off for scripts)
+        widget: boolean
+        default: true
+      - name: code
+        label: HTML code (paste any ad, widget or embed code)
+        widget: code
+        default_language: html
+        allow_language_selection: false
+        output_code_only: true
         required: false
-        fields:
-          - { name: id, label: "YouTube video ID (the part after watch?v=)", widget: string }
-          - { name: title, label: Video title, widget: string }
-          - { name: channel, label: Channel name, widget: string, required: false }
-      - name: faq
-        label: FAQ (also sent to Google as structured data)
-        widget: list
+- name: design
+  label: 🎨 Design & menu
+  editor:
+    preview: false
+  files:
+  - name: theme
+    label: Colors, fonts and bars
+    file: src/_data/theme.json
+    format: json
+    fields:
+    - name: colorDark
+      label: Dark color (header bar
+      footer: null
+      boxes): null
+      widget: color
+    - name: colorBrand
+      label: Brand color
+      widget: color
+    - name: colorBrandDark
+      label: Brand color (darker
+      links): null
+      widget: color
+    - name: colorAccent
+      label: Button / highlight color
+      widget: color
+    - name: colorAccentDark
+      label: Button color (darker)
+      widget: color
+    - name: colorSoft
+      label: Soft background color
+      widget: color
+    - name: headingFont
+      label: Heading font
+      widget: select
+      options:
+      - Plus Jakarta Sans
+      - Inter
+      - Poppins
+      - Montserrat
+      - DM Sans
+      - Outfit
+      - Merriweather
+      - Lora
+      - Playfair Display
+      - Roboto
+    - name: bodyFont
+      label: Text font
+      widget: select
+      options:
+      - Inter
+      - Plus Jakarta Sans
+      - Poppins
+      - Montserrat
+      - DM Sans
+      - Roboto
+      - Open Sans
+      - Lato
+      - Merriweather
+      - Lora
+    - name: radius
+      label: Corner roundness (px)
+      widget: number
+      default: 18
+      value_type: int
+    - name: showTopBar
+      label: Show top announcement bar
+      widget: boolean
+    - name: topBarText
+      label: Top bar text
+      widget: string
+    - name: topBarButton
+      label: Top bar link text
+      widget: string
+    - name: showStickyMobileCta
+      label: Show sticky bonus button on mobile
+      widget: boolean
+  - name: nav
+    label: Main menu (drag ☰ to reorder)
+    file: src/_data/nav.json
+    format: json
+    fields:
+    - name: items
+      label: Menu items
+      widget: list
+      summary: '{{label}}'
+      fields:
+      - name: label
+        label: Text
+        widget: string
+      - name: url
+        label: Link (empty = Swagbucks referral link)
+        widget: string
         required: false
-        fields:
-          - { name: q, label: Question, widget: string }
-          - { name: a, label: Answer, widget: text }
-      - { name: body, label: Article text, widget: markdown }
-
-  # ---------------- PAGES ----------------
-  - name: pages
-    label: Pages
-    files:
-      - { name: about, label: About, file: src/pages/about.md, fields: [ { name: title, label: Title, widget: string }, { name: description, label: Description, widget: text }, { name: permalink, label: URL, widget: hidden }, { name: body, label: Text, widget: markdown } ] }
-      - { name: contact, label: Contact, file: src/pages/contact.md, fields: [ { name: title, label: Title, widget: string }, { name: description, label: Description, widget: text }, { name: permalink, label: URL, widget: hidden }, { name: body, label: Text, widget: markdown } ] }
-      - { name: disclosure, label: Affiliate disclosure, file: src/pages/affiliate-disclosure.md, fields: [ { name: title, label: Title, widget: string }, { name: description, label: Description, widget: text }, { name: permalink, label: URL, widget: hidden }, { name: body, label: Text, widget: markdown } ] }
-      - { name: privacy, label: Privacy policy, file: src/pages/privacy-policy.md, fields: [ { name: title, label: Title, widget: string }, { name: description, label: Description, widget: text }, { name: permalink, label: URL, widget: hidden }, { name: body, label: Text, widget: markdown } ] }
-      - { name: terms, label: Terms of use, file: src/pages/terms.md, fields: [ { name: title, label: Title, widget: string }, { name: description, label: Description, widget: text }, { name: permalink, label: URL, widget: hidden }, { name: body, label: Text, widget: markdown } ] }
-
-  # ---------------- SETTINGS ----------------
-  - name: settings
-    label: Site settings
-    editor: { preview: false }
-    files:
-      - name: site
-        label: General settings & referral link
-        file: src/_data/site.json
-        format: json
-        fields:
-          - { name: name, label: Site name, widget: string }
-          - { name: url, label: Site URL (no trailing slash), widget: string }
-          - { name: tagline, label: Tagline, widget: string }
-          - { name: description, label: Default meta description, widget: text }
-          - { name: language, label: Language code, widget: string, default: en }
-          - { name: author, label: Author name shown on articles, widget: string }
-          - { name: contactEmail, label: Contact email, widget: string }
-          - { name: swagbucksUrl, label: "Swagbucks referral link (used everywhere on the site)", widget: string }
-          - { name: swagbucksBonus, label: "Welcome bonus amount shown (e.g. $5)", widget: string }
-          - { name: bonusNote, label: Bonus small print, widget: text }
-          - { name: googleSiteVerification, label: "Google Search Console verification code (content=\"...\")", widget: string, required: false }
-          - { name: googleAnalyticsId, label: "Google Analytics ID (G-XXXXXXX)", widget: string, required: false }
-      - name: categories
-        label: Categories
-        file: src/_data/categories.json
-        format: json
-        fields:
-          - name: categories
-            label: Categories
-            widget: list
-            root: true
-            fields:
-              - { name: slug, label: "Slug (do not change after publishing)", widget: string }
-              - { name: name, label: Name, widget: string }
-              - { name: description, label: Description, widget: text }
-              - { name: icon, label: "Icon (survey, star, laptop, bag, coin)", widget: string }
+      - name: style
+        label: Style
+        widget: select
+        default: link
+        options:
+        - link
+        - button
+- name: pages
+  label: Pages
+  files:
+  - name: about
+    label: About
+    file: src/pages/about.md
+    fields:
+    - name: title
+      label: Title
+      widget: string
+    - name: description
+      label: Description
+      widget: text
+    - name: permalink
+      label: URL
+      widget: hidden
+    - name: body
+      label: Text
+      widget: markdown
+  - name: contact
+    label: Contact
+    file: src/pages/contact.md
+    fields:
+    - name: title
+      label: Title
+      widget: string
+    - name: description
+      label: Description
+      widget: text
+    - name: permalink
+      label: URL
+      widget: hidden
+    - name: body
+      label: Text
+      widget: markdown
+  - name: disclosure
+    label: Affiliate disclosure
+    file: src/pages/affiliate-disclosure.md
+    fields:
+    - name: title
+      label: Title
+      widget: string
+    - name: description
+      label: Description
+      widget: text
+    - name: permalink
+      label: URL
+      widget: hidden
+    - name: body
+      label: Text
+      widget: markdown
+  - name: privacy
+    label: Privacy policy
+    file: src/pages/privacy-policy.md
+    fields:
+    - name: title
+      label: Title
+      widget: string
+    - name: description
+      label: Description
+      widget: text
+    - name: permalink
+      label: URL
+      widget: hidden
+    - name: body
+      label: Text
+      widget: markdown
+  - name: terms
+    label: Terms of use
+    file: src/pages/terms.md
+    fields:
+    - name: title
+      label: Title
+      widget: string
+    - name: description
+      label: Description
+      widget: text
+    - name: permalink
+      label: URL
+      widget: hidden
+    - name: body
+      label: Text
+      widget: markdown
+- name: settings
+  label: Site settings
+  editor:
+    preview: false
+  files:
+  - name: site
+    label: General settings & referral link
+    file: src/_data/site.json
+    format: json
+    fields:
+    - name: name
+      label: Site name
+      widget: string
+    - name: url
+      label: Site URL (no trailing slash)
+      widget: string
+    - name: tagline
+      label: Tagline
+      widget: string
+    - name: description
+      label: Default meta description
+      widget: text
+    - name: language
+      label: Language code
+      widget: string
+      default: en
+    - name: author
+      label: Author name shown on articles
+      widget: string
+    - name: contactEmail
+      label: Contact email
+      widget: string
+    - name: swagbucksUrl
+      label: Swagbucks referral link (used everywhere on the site)
+      widget: string
+    - name: swagbucksBonus
+      label: Welcome bonus amount shown (e.g. $5)
+      widget: string
+    - name: bonusNote
+      label: Bonus small print
+      widget: text
+    - name: googleSiteVerification
+      label: Google Search Console verification code (content="...")
+      widget: string
+      required: false
+    - name: googleAnalyticsId
+      label: Google Analytics ID (G-XXXXXXX)
+      widget: string
+      required: false
+  - name: categories
+    label: Categories
+    file: src/_data/categories.json
+    format: json
+    fields:
+    - name: categories
+      label: Categories
+      widget: list
+      root: true
+      fields:
+      - name: slug
+        label: Slug (do not change after publishing)
+        widget: string
+      - name: name
+        label: Name
+        widget: string
+      - name: description
+        label: Description
+        widget: text
+      - name: icon
+        label: Icon (survey, star, laptop, bag, coin)
+        widget: string
