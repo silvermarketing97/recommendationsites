@@ -43,6 +43,8 @@ function rs_db() {
     $db->exec('CREATE INDEX IF NOT EXISTS i_day ON hits(day, type)');
     $db->exec('CREATE INDEX IF NOT EXISTS i_ts ON hits(ts)');
     $db->exec('CREATE INDEX IF NOT EXISTS i_pv ON hits(pv)');
+    $cols = array_column($db->query('PRAGMA table_info(hits)')->fetchAll(PDO::FETCH_ASSOC), 'name');
+    if (!in_array('ref_url', $cols, true)) $db->exec('ALTER TABLE hits ADD COLUMN ref_url TEXT');
     $db->exec('CREATE TABLE IF NOT EXISTS bots (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         ts INTEGER NOT NULL, day TEXT NOT NULL, hour INTEGER NOT NULL,
@@ -170,12 +172,25 @@ function rs_source($refHost, $utmSource, $siteHost) {
     if ($utmSource !== '') return [ucfirst(strtolower($utmSource)), 'Campaign'];
     if ($refHost === '') return ['Direct', 'Direct'];
     if ($refHost === $siteHost || str_ends_with($refHost, '.' . $siteHost) || $refHost === 'recommendationsites.com' || str_ends_with($refHost, '.temporary.site')) return ['Internal', 'Internal'];
-    $search = ['google'=>'Google','bing'=>'Bing','yahoo'=>'Yahoo','duckduckgo'=>'DuckDuckGo','ecosia'=>'Ecosia','yandex'=>'Yandex','baidu'=>'Baidu','search.brave'=>'Brave Search','startpage'=>'Startpage','aol'=>'AOL'];
-    foreach ($search as $k => $name) if (str_contains($refHost, $k)) return [$name, 'Search'];
-    $social = ['facebook'=>'Facebook','fb.'=>'Facebook','instagram'=>'Instagram','t.co'=>'X / Twitter','twitter'=>'X / Twitter','x.com'=>'X / Twitter','linkedin'=>'LinkedIn','lnkd.in'=>'LinkedIn','pinterest'=>'Pinterest','reddit'=>'Reddit','youtube'=>'YouTube','tiktok'=>'TikTok','whatsapp'=>'WhatsApp','telegram'=>'Telegram','quora'=>'Quora','snapchat'=>'Snapchat','threads'=>'Threads'];
-    foreach ($social as $k => $name) if (str_contains($refHost, $k)) return [$name, 'Social'];
-    $ai = ['chatgpt'=>'ChatGPT','openai'=>'ChatGPT','perplexity'=>'Perplexity','claude.ai'=>'Claude','gemini'=>'Gemini','copilot'=>'Copilot'];
-    foreach ($ai as $k => $name) if (str_contains($refHost, $k)) return [$name, 'AI'];
+    // Host rules: matched against the whole host name (no partial-word matches)
+    static $rules = [
+        ['/(^|\.)google\.[a-z.]{2,6}$/', 'Google', 'Search'], ['/(^|\.)bing\.com$/', 'Bing', 'Search'],
+        ['/(^|\.)yahoo\.[a-z.]{2,6}$/', 'Yahoo', 'Search'], ['/(^|\.)duckduckgo\.com$/', 'DuckDuckGo', 'Search'],
+        ['/(^|\.)ecosia\.org$/', 'Ecosia', 'Search'], ['/(^|\.)yandex\.[a-z.]{2,6}$/', 'Yandex', 'Search'],
+        ['/(^|\.)baidu\.com$/', 'Baidu', 'Search'], ['/^search\.brave\.com$/', 'Brave Search', 'Search'],
+        ['/(^|\.)startpage\.com$/', 'Startpage', 'Search'], ['/(^|\.)aol\.com$/', 'AOL', 'Search'],
+        ['/(^|\.)instagram\.com$/', 'Instagram', 'Social'], ['/(^|\.)(facebook\.com|fb\.com|fb\.me)$/', 'Facebook', 'Social'],
+        ['/(^|\.)messenger\.com$/', 'Messenger', 'Social'], ['/^(t\.co|x\.com|twitter\.com|mobile\.twitter\.com)$/', 'X / Twitter', 'Social'],
+        ['/(^|\.)(linkedin\.com|lnkd\.in)$/', 'LinkedIn', 'Social'], ['/(^|\.)pinterest\.[a-z.]{2,6}$|^pin\.it$/', 'Pinterest', 'Social'],
+        ['/(^|\.)reddit\.com$/', 'Reddit', 'Social'], ['/(^|\.)(youtube\.com|youtu\.be)$/', 'YouTube', 'Social'],
+        ['/(^|\.)tiktok\.com$/', 'TikTok', 'Social'], ['/(^|\.)whatsapp\.(com|net)$|^wa\.me$/', 'WhatsApp', 'Social'],
+        ['/(^|\.)(telegram\.org|t\.me)$/', 'Telegram', 'Social'], ['/(^|\.)quora\.com$/', 'Quora', 'Social'],
+        ['/(^|\.)snapchat\.com$/', 'Snapchat', 'Social'], ['/(^|\.)threads\.(net|com)$/', 'Threads', 'Social'],
+        ['/(^|\.)(chatgpt\.com|openai\.com)$/', 'ChatGPT', 'AI'], ['/(^|\.)perplexity\.ai$/', 'Perplexity', 'AI'],
+        ['/(^|\.)claude\.ai$/', 'Claude', 'AI'], ['/^gemini\.google\.com$/', 'Gemini', 'AI'], ['/(^|\.)copilot\.microsoft\.com$/', 'Copilot', 'AI'],
+    ];
+    foreach ([['/^gemini\.google\.com$/', 'Gemini', 'AI']] as [$re, $n, $m]) if (preg_match($re, $refHost)) return [$n, $m];
+    foreach ($rules as [$re, $name, $medium]) if (preg_match($re, $refHost)) return [$name, $medium];
     return [$refHost, 'Referral'];
 }
 
@@ -205,10 +220,14 @@ function rs_collect() {
     if ($path === '' || $path[0] !== '/' || str_starts_with($path, '/admin')) { http_response_code(204); return; }
 
     $siteHost = preg_replace('/^www\./', '', strtolower($_SERVER['HTTP_HOST'] ?? ''));
-    $refHost = '';
+    $refHost = ''; $refUrl = '';
     if (!empty($d['r'])) {
         $h = parse_url((string)$d['r'], PHP_URL_HOST);
-        if ($h) $refHost = preg_replace('/^www\./', '', strtolower($h));
+        if ($h) {
+            $refHost = preg_replace('/^www\./', '', strtolower($h));
+            $refPath = (string)parse_url((string)$d['r'], PHP_URL_PATH);
+            $refUrl = rs_cut($refHost . ($refPath !== '/' ? $refPath : ''), 300);
+        }
     }
     $us = rs_cut($d['us'] ?? '', 60); $um = rs_cut($d['um'] ?? '', 60); $uc = rs_cut($d['uc'] ?? '', 100);
     [$source, $medium] = rs_source($refHost, $us, $siteHost);
@@ -219,14 +238,14 @@ function rs_collect() {
     $now = time();
     $visitor = substr(hash('sha256', date('Y-m-d', $now) . rs_salt() . $ip . $ua), 0, 16);
 
-    $st = $db->prepare('INSERT INTO hits (ts, day, hour, type, pv, session, visitor, path, title, ref_host, source, medium, utm_source, utm_medium, utm_campaign, country, lang, device, browser, os, event, label)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
+    $st = $db->prepare('INSERT INTO hits (ts, day, hour, type, pv, session, visitor, path, title, ref_host, ref_url, source, medium, utm_source, utm_medium, utm_campaign, country, lang, device, browser, os, event, label)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
     $event = $type === 'ev' ? rs_cut($d['n'] ?? '', 40) : null;
     if ($type === 'ev' && !in_array($event, RS_TRACK_EVENTS, true)) { http_response_code(204); return; }
     $st->execute([
         $now, date('Y-m-d', $now), (int)date('G', $now), $type === 'pv' ? 'pageview' : 'event',
         $pv, rs_cut($d['s'] ?? '', 40), $visitor, $path, rs_cut($d['ti'] ?? '', 200),
-        $refHost, $source, $medium, $us, $um, $uc, $country, $lang, $device, $browser, $os,
+        $refHost, $medium === 'Internal' ? '' : $refUrl, $source, $medium, $us, $um, $uc, $country, $lang, $device, $browser, $os,
         $event, $type === 'ev' ? rs_cut($d['l'] ?? '', 60) : null,
     ]);
     http_response_code(204);
@@ -318,7 +337,7 @@ function rs_report($range, $from = null, $to = null) {
     }
 
     $pages = rs_top($db, 'path', $a, $b, 15, "type='pageview'", ", MAX(title) title, CAST(AVG(CASE WHEN duration>0 THEN duration END) AS INTEGER) avgdur");
-    $st = $db->prepare("SELECT path name, COUNT(*) views FROM hits WHERE type='pageview' AND day BETWEEN ? AND ? AND pv IN (SELECT MIN(pv) FROM hits WHERE type='pageview' AND day BETWEEN ? AND ? GROUP BY session) GROUP BY path ORDER BY views DESC LIMIT 10");
+    $st = $db->prepare("SELECT path name, COUNT(*) views FROM hits WHERE type='pageview' AND day BETWEEN ? AND ? AND id IN (SELECT MIN(id) FROM hits WHERE type='pageview' AND day BETWEEN ? AND ? GROUP BY session) GROUP BY path ORDER BY views DESC LIMIT 10");
     $st->execute([$a, $b, $a, $b]); $entry = $st->fetchAll(PDO::FETCH_ASSOC);
 
     return [
@@ -331,6 +350,8 @@ function rs_report($range, $from = null, $to = null) {
         'sources' => rs_top($db, 'source', $a, $b, 12, "type='pageview' AND medium <> 'Internal'"),
         'channels' => rs_top($db, 'medium', $a, $b, 8, "type='pageview' AND medium <> 'Internal'"),
         'referrers' => rs_top($db, 'ref_host', $a, $b, 12, "type='pageview' AND medium IN ('Referral','Social','Search','AI')"),
+        'refUrls' => rs_top($db, 'ref_url', $a, $b, 20, "type='pageview' AND medium IN ('Referral','Social','Search','AI')", ", MAX(source) source, MAX(medium) medium"),
+        'arrivals' => rs_arrivals($db, $a, $b),
         'campaigns' => rs_top($db, 'utm_campaign', $a, $b, 10),
         'countries' => rs_top($db, 'country', $a, $b, 15),
         'devices' => rs_top($db, 'device', $a, $b, 5),
@@ -391,4 +412,15 @@ function rs_health($db, $series) {
         $streak++;
     }
     return ['lastHuman' => $lastHuman, 'firstData' => $first, 'todayVisitors' => $today, 'zeroBuckets' => $zero, 'daysWithoutVisits' => $streak, 'now' => time()];
+}
+
+
+/** Latest visits that arrived from another website (one row per session entry). */
+function rs_arrivals($db, $a, $b) {
+    $st = $db->prepare("SELECT ts, source, medium, ref_host, ref_url, path, country, device, utm_campaign
+        FROM hits WHERE type='pageview' AND day BETWEEN ? AND ? AND medium NOT IN ('Internal')
+        AND id IN (SELECT MIN(id) FROM hits WHERE type='pageview' AND day BETWEEN ? AND ? GROUP BY session)
+        ORDER BY id DESC LIMIT 40");
+    $st->execute([$a, $b, $a, $b]);
+    return $st->fetchAll(PDO::FETCH_ASSOC);
 }

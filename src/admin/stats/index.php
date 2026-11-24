@@ -75,6 +75,17 @@ main{max-width:1320px;margin:0 auto;padding:20px}
 .cat{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:#eef1f6;color:#4a5a77;margin-left:6px;vertical-align:1px;text-transform:uppercase;letter-spacing:.03em}
 .cat.ai{background:#efe7ff;color:#5b2fc0}.cat.search{background:#e6efff;color:#1f4fb5}.cat.seo{background:#fff1c9;color:#8a5a00}.cat.social{background:#e9f8f1;color:#0b7f56}.cat.script{background:#ffe9e2;color:#b1401b}
 .row.botrow .fill{background:#e8edf6}
+.src{display:inline-flex;align-items:center;gap:6px;font-weight:600}
+.src i{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;font-style:normal;font-size:12px;font-weight:800;color:#fff;flex:0 0 auto}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:left;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.05em;padding:6px 8px;border-bottom:1px solid var(--line)}
+.tbl td{padding:9px 8px;border-bottom:1px dashed var(--line);vertical-align:middle}
+.tbl td.u{max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tbl a,.rows a{color:var(--green2);text-decoration:none}.tbl a:hover{text-decoration:underline}
+.tblwrap{overflow-x:auto}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+.chip2{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;min-width:120px}
+.chip2 b{display:block;font-size:20px;color:var(--ink)}.chip2 span{font-size:12px;color:var(--muted)}
 @media(max-width:1000px){.kpis{grid-template-columns:repeat(2,1fr)}.grid3{grid-template-columns:1fr 1fr}}
 @media(max-width:700px){.grid2,.grid3{grid-template-columns:1fr}.kpi .v{font-size:23px}.live{margin-left:0}main{padding:14px}}
 </style>
@@ -107,10 +118,19 @@ main{max-width:1320px;margin:0 auto;padding:20px}
     <div id="chart"><div class="tip" id="tip"></div></div>
   </div>
 
+  <h2 class="section-title">🔗 ¿De dónde vienen tus visitas? <small>referer / origen</small></h2>
+  <div class="card"><div class="chips" id="channelChips"></div>
+    <p class="note">Por qué canal llegan las personas: buscadores (Google, Bing…), redes sociales (Facebook, Instagram, TikTok…), otros sitios web, asistentes de IA, campañas o directo (escribieron tu dirección, un enlace guardado o una app que no informa el origen).</p></div>
+  <div class="grid2" style="margin-bottom:18px">
+    <div class="card"><h2>Fuentes <small>Google, Facebook, Instagram…</small></h2><div id="sources"></div></div>
+    <div class="card"><h2>Referer exacto <small>página desde donde llegaron</small></h2><div id="refUrls"></div>
+      <p class="note">Google y la mayoría de buscadores no envían la palabra buscada; para ver eso usa Google Search Console.</p></div>
+  </div>
+  <div class="card"><h2>Últimas llegadas <small>cada visita nueva, con su origen</small></h2><div class="tblwrap" id="arrivals"></div></div>
+
   <div class="grid2" style="margin-bottom:18px">
     <div class="card"><h2>Páginas más vistas <small>visitas · tiempo prom.</small></h2><div id="pages"></div></div>
-    <div class="card"><h2>De dónde llegan <small>fuentes</small></h2><div id="sources"></div>
-      <h2 style="margin-top:18px">Canales</h2><div id="channels"></div></div>
+    <div class="card"><h2>Páginas de entrada <small>donde empiezan las visitas</small></h2><div id="entryPages"></div></div>
   </div>
 
   <div class="grid2" style="margin-bottom:18px">
@@ -126,9 +146,8 @@ main{max-width:1320px;margin:0 auto;padding:20px}
     <div class="card"><h2>Navegadores</h2><div id="browsers"></div><h2 style="margin-top:18px">Idiomas</h2><div id="languages"></div></div>
   </div>
 
-  <div class="grid3">
-    <div class="card"><h2>Páginas de entrada</h2><div id="entryPages"></div></div>
-    <div class="card"><h2>Sitios que te enlazan</h2><div id="referrers"></div></div>
+  <div class="grid2">
+    <div class="card"><h2>Sitios que te enlazan <small>dominio</small></h2><div id="referrers"></div></div>
     <div class="card"><h2>Campañas (UTM)</h2><div id="campaigns"></div>
       <p class="note">Agrega <b>?utm_campaign=nombre</b> a tus enlaces en redes para medirlos aquí.</p></div>
   </div>
@@ -157,6 +176,8 @@ const deviceNames = { Mobile: '📱 Celular', Desktop: '💻 Computador', Tablet
 const channelNames = { Search: '🔎 Buscadores', Direct: '➡️ Directo', Social: '💬 Redes sociales', Referral: '🔗 Otros sitios', Campaign: '📣 Campañas', AI: '🤖 Asistentes IA' };
 
 let range = '30d', from = '', to = '';
+const srcStyle = { Google: ['G', '#4285f4'], Bing: ['B', '#008373'], Yahoo: ['Y', '#6001d2'], DuckDuckGo: ['D', '#de5833'], Facebook: ['f', '#1877f2'], Instagram: ['IG', '#e1306c'], 'X / Twitter': ['X', '#000'], LinkedIn: ['in', '#0a66c2'], Pinterest: ['P', '#e60023'], Reddit: ['R', '#ff4500'], YouTube: ['▶', '#ff0000'], TikTok: ['♪', '#111'], WhatsApp: ['W', '#25d366'], Telegram: ['T', '#229ed9'], Messenger: ['M', '#0084ff'], Quora: ['Q', '#b92b27'], ChatGPT: ['AI', '#10a37f'], Claude: ['AI', '#d97757'], Perplexity: ['AI', '#20808d'], Gemini: ['AI', '#4285f4'], Copilot: ['AI', '#0078d4'], Direct: ['→', '#5d6f69'] };
+const srcBadge = (name, medium) => { const st = srcStyle[name] || (medium === 'Referral' ? ['🔗', '#8b9bb8'] : medium === 'Campaign' ? ['📣', '#f5a400'] : [String(name || '?').slice(0, 1).toUpperCase(), '#8b9bb8']); return `<span class="src"><i style="background:${st[1]}">${st[0]}</i>${esc(name === 'Direct' ? 'Directo' : name)}</span>`; };
 const catNames = { 'Search engine': ['🔎 Buscadores', 'search'], 'AI': ['🤖 Inteligencia artificial', 'ai'], 'SEO tool': ['🛠️ Herramientas SEO', 'seo'], 'Social preview': ['💬 Vista previa redes', 'social'], 'Monitoring': ['📡 Monitoreo', ''], 'Script / unknown': ['⚙️ Scripts / desconocidos', 'script'], 'Other bot': ['❔ Otros robots', ''] };
 const ago = (ts) => { if (!ts) return 'nunca'; const s = Math.floor(Date.now() / 1000 - ts); if (s < 60) return 'hace segundos'; if (s < 3600) return `hace ${Math.floor(s / 60)} min`; if (s < 86400) return `hace ${Math.floor(s / 3600)} h`; return `hace ${Math.floor(s / 86400)} días`; };
 
@@ -280,8 +301,16 @@ async function load() {
     kpis(d.kpis, d.previous); chart(d.series, r.hourly); window._series = [d.series, r.hourly];
     list('pages', d.pages, { h: 'Página', b: 'Tiempo', name: (p) => `${esc(p.title || p.name)}<small>${esc(p.name)}</small>`, bval: (p) => dur(p.avgdur) });
     list('entryPages', d.entryPages, { h: 'Página', b: '', bval: () => '' });
-    list('sources', d.sources, { h: 'Fuente' });
-    list('channels', d.channels, { h: 'Canal', name: (c) => channelNames[c.name] || esc(c.name) });
+    list('sources', d.sources, { h: 'Fuente', name: (r) => srcBadge(r.name, '') });
+    list('refUrls', d.refUrls, { h: 'URL de origen', name: (r) => `<a href="https://${esc(r.name)}" target="_blank" rel="noopener noreferrer">${esc(r.name)}</a>` });
+    const chTotal = d.channels.reduce((t, c) => t + (+c.views), 0) || 1;
+    $('channelChips').innerHTML = d.channels.length ? d.channels.map((c) => `<div class="chip2"><b>${Math.round((c.views / chTotal) * 100)}%</b><span>${channelNames[c.name] || esc(c.name)} · ${fmt(c.views)}</span></div>`).join('') : '<div class="empty">Sin datos todavía</div>';
+    $('arrivals').innerHTML = d.arrivals && d.arrivals.length ? `<table class="tbl"><thead><tr><th>Cuándo</th><th>Origen</th><th>Referer</th><th>Llegó a</th><th>País</th><th></th></tr></thead><tbody>` + d.arrivals.map((r) => {
+      const when = new Date(r.ts * 1000).toLocaleString('es-CO', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+      const ref = r.ref_url ? `<a href="https://${esc(r.ref_url)}" target="_blank" rel="noopener noreferrer">${esc(r.ref_url)}</a>` : (r.utm_campaign ? 'Campaña: ' + esc(r.utm_campaign) : '<span style="color:#8a9a95">— (directo)</span>');
+      return `<tr><td>${when}</td><td>${srcBadge(r.source, r.medium)}</td><td class="u">${ref}</td><td class="u">${esc(r.path)}</td><td>${flag(r.country)}</td><td>${r.device === 'Mobile' ? '📱' : r.device === 'Tablet' ? '📲' : '💻'}</td></tr>`;
+    }).join('') + '</tbody></table>' : '<div class="empty">Sin visitas todavía</div>';
+    
     list('referrers', d.referrers, { h: 'Sitio' });
     list('campaigns', d.campaigns, { h: 'Campaña' });
     list('countries', d.countries, { h: 'País', name: (c) => `${flag(c.name)} ${esc(cName(c.name))}` });
