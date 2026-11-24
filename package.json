@@ -1,0 +1,16 @@
+{
+  "name": "recommendationsites",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Recommendation Sites - static blog (Eleventy) with Sveltia CMS",
+  "scripts": {
+    "build": "eleventy",
+    "start": "eleventy --serve"
+  },
+  "dependencies": {
+    "@11ty/eleventy": "^3.1.8",
+    "markdown-it": "^14.3.3",
+    "markdown-it-anchor": "^9.2.0"
+  },
+  "type": "module"
+}

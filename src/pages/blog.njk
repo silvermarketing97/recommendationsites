@@ -1,0 +1,24 @@
+---
+layout: base.njk
+title: All money-making guides
+description: Every Recommendation Sites guide to paid surveys, Swagbucks, online income and offline side hustles, newest first.
+pagination:
+  data: collections.posts
+  size: 12
+  alias: pagePosts
+permalink: "/blog/{% if pagination.pageNumber > 0 %}page/{{ pagination.pageNumber + 1 }}/{% endif %}"
+eleventyExcludeFromCollections: true
+tags: []
+---
+<section class="page-head">
+  <div class="wrap">
+    <h1>All guides</h1>
+    <p>Honest, practical guides to earning extra money online and offline.</p>
+  </div>
+</section>
+<section class="section">
+  <div class="wrap">
+    <div class="grid grid--3">{% for post in pagePosts %}{% include "partials/card.njk" %}{% endfor %}</div>
+    {% include "partials/pager.njk" %}
+  </div>
+</section>

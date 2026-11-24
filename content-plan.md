@@ -1,0 +1,44 @@
+# Content plan
+
+The daily writer takes the first unchecked topic. Edit, reorder or add topics freely.
+
+- [x] Swagbucks review (is it legit, how much can you earn) → swagbucks-review
+- [x] How to make money taking online surveys → how-to-make-money-taking-online-surveys
+- [x] Legit ways to make money online from home → legit-ways-to-make-money-online
+- [x] Offline side hustles you can start this weekend → offline-side-hustles
+- [ ] How to earn your first $10 on Swagbucks (step by step)
+- [ ] Why you keep getting disqualified from surveys (and how to fix it)
+- [ ] Swagbucks in the UK: how it works and what you can earn
+- [ ] How to make money online as a beginner with no money
+- [ ] Swagbucks tips and tricks to earn more points every day
+- [ ] Best paid survey sites in Canada
+- [ ] Dog walking side hustle: how to start and what to charge
+- [ ] Swagbucks cashback: how to earn on shopping you already do
+- [ ] Swagbucks vs Survey Junkie: which pays better?
+- [ ] Paid surveys in Australia: what to expect
+- [ ] Freelancing for beginners: how to land your first client
+- [ ] How to redeem Swagbucks for PayPal cash
+- [ ] How to spot fake survey sites and online money scams
+- [ ] Swagbucks in Canada: complete guide
+- [ ] How to make money selling clothes online
+- [ ] Swagbucks Magic Receipts explained
+- [ ] Paid surveys in Ireland: is it worth it?
+- [ ] House cleaning side hustle: how to start
+- [ ] Swagbucks app vs website: where you earn more
+- [ ] How much can you really make from online surveys per month?
+- [ ] Swagbucks daily goal and bonus explained
+- [ ] Make money with user testing websites
+- [ ] Swagbucks in Australia: complete guide
+- [ ] Thrift flipping for beginners: buy low, sell high
+- [ ] Swagbucks game and app offers: which are worth it?
+- [ ] How to budget your side hustle income
+- [ ] Is Swagbucks safe? Privacy and security explained
+- [ ] Online surveys for students: how to earn between classes
+- [ ] Swagbucks vs InboxDollars
+- [ ] Babysitting side hustle: rates, safety and finding families
+- [ ] Swagbucks in Ireland: complete guide
+- [ ] Virtual assistant jobs for beginners
+- [ ] Swagbucks referral program explained
+- [ ] Best times of day to take paid surveys
+- [ ] Swagbucks for stay-at-home parents
+- [ ] Food delivery side hustle: is it worth it after costs?

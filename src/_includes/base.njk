@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="{{ site.language }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+{%- set pageTitle = (title + " | " + site.name) if title and not isHome else (site.name + " — " + site.tagline) -%}
+{%- set pageDesc = description or site.description -%}
+{%- set canonical = page.url | absUrl(site.url) -%}
+{%- set ogImage = (image | imgSize(1200)) if image else ((site.url + "/assets/img/og-default.png")) -%}
+<title>{{ pageTitle }}</title>
+<meta name="description" content="{{ pageDesc }}">
+<link rel="canonical" href="{{ canonical }}">
+<meta name="robots" content="{{ 'noindex, follow' if noindex else 'index, follow, max-image-preview:large' }}">
+<meta property="og:site_name" content="{{ site.name }}">
+<meta property="og:type" content="{{ 'article' if layout == 'post.njk' else 'website' }}">
+<meta property="og:title" content="{{ title or site.name }}">
+<meta property="og:description" content="{{ pageDesc }}">
+<meta property="og:url" content="{{ canonical }}">
+<meta property="og:image" content="{{ ogImage }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0b1f1a">
+{% if site.googleSiteVerification %}<meta name="google-site-verification" content="{{ site.googleSiteVerification }}">{% endif %}
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="alternate" type="application/rss+xml" title="{{ site.name }}" href="/feed.xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://images.unsplash.com">
+<link rel="stylesheet" href="/assets/css/style.css">
+<script type="application/ld+json">{{ {
+  "@context": "https://schema.org",
+  "@graph": [
+    {"@type": "Organization", "@id": site.url + "/#org", "name": site.name, "url": site.url, "logo": site.url + "/assets/img/logo.svg"},
+    {"@type": "WebSite", "@id": site.url + "/#website", "name": site.name, "url": site.url, "publisher": {"@id": site.url + "/#org"}, "inLanguage": "en"}
+  ]
+} | jsonify | safe }}</script>
+{% block head %}{% endblock %}
+{% if site.googleAnalyticsId %}
+<script async src="https://www.googletagmanager.com/gtag/js?id={{ site.googleAnalyticsId }}"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','{{ site.googleAnalyticsId }}');</script>
+{% endif %}
+</head>
+<body class="{{ bodyClass }}">
+<a class="skip" href="#main">Skip to content</a>
+<div class="topbar">
+  <div class="wrap topbar__in">
+    <span><strong>New to Swagbucks?</strong> Join through our link and get a {{ site.swagbucksBonus }} welcome bonus.</span>
+    <a href="{{ site.swagbucksUrl }}" target="_blank" rel="sponsored noopener" data-cta="topbar">Claim it &rarr;</a>
+  </div>
+</div>
+<header class="header">
+  <div class="wrap header__in">
+    <a class="logo" href="/" aria-label="{{ site.name }} home">
+      <img src="/assets/img/logo.svg" alt="" width="36" height="36">
+      <span>Recommendation<b>Sites</b></span>
+    </a>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="nav" aria-label="Open menu"><span></span><span></span><span></span></button>
+    <nav id="nav" class="nav" aria-label="Main">
+      <a href="/category/paid-surveys/">Paid Surveys</a>
+      <a href="/category/swagbucks/">Swagbucks</a>
+      <a href="/category/make-money-online/">Online</a>
+      <a href="/category/side-hustles/">Offline</a>
+      <a href="/blog/">All guides</a>
+      <a class="btn btn--sm btn--gold" href="{{ site.swagbucksUrl }}" target="_blank" rel="sponsored noopener" data-cta="nav">Get {{ site.swagbucksBonus }} bonus</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+{{ content | safe }}
+</main>
+
+<footer class="footer">
+  <div class="wrap footer__grid">
+    <div>
+      <a class="logo logo--light" href="/"><img src="/assets/img/logo.svg" alt="" width="32" height="32"><span>Recommendation<b>Sites</b></span></a>
+      <p class="footer__about">{{ site.description }}</p>
+    </div>
+    <div>
+      <p class="footer__h">Topics</p>
+      {% for c in categories %}<a href="/category/{{ c.slug }}/">{{ c.name }}</a>{% endfor %}
+    </div>
+    <div>
+      <p class="footer__h">About</p>
+      <a href="/about/">About us</a>
+      <a href="/contact/">Contact</a>
+      <a href="/affiliate-disclosure/">Affiliate disclosure</a>
+      <a href="/privacy-policy/">Privacy policy</a>
+      <a href="/terms/">Terms of use</a>
+    </div>
+  </div>
+  <div class="wrap footer__legal">
+    <p>Some links on this site are referral or affiliate links. If you sign up through them we may earn a commission at no extra cost to you. Earnings from surveys and side hustles vary and are never guaranteed. <a href="/affiliate-disclosure/">Learn more</a>.</p>
+    <p>&copy; {{ build.year }} {{ site.name }}. All rights reserved. <a class="footer__admin" href="/admin/" rel="nofollow">Admin</a></p>
+  </div>
+</footer>
+
+<a class="sticky-cta" href="{{ site.swagbucksUrl }}" target="_blank" rel="sponsored noopener" data-cta="sticky">
+  <span><b>{{ site.swagbucksBonus }} welcome bonus</b> on Swagbucks</span><span class="sticky-cta__go">Join free</span>
+</a>
+<script src="/assets/js/main.js" defer></script>
+</body>
+</html>

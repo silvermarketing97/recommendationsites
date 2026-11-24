@@ -1,0 +1,26 @@
+---
+layout: false
+permalink: /sitemap.xml
+eleventyExcludeFromCollections: true
+tags: []
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url><loc>{{ site.url }}/</loc><lastmod>{{ build.now }}</lastmod></url>
+  <url><loc>{{ site.url }}/blog/</loc><lastmod>{{ build.now }}</lastmod></url>
+  {%- for c in categories %}
+  <url><loc>{{ site.url }}/category/{{ c.slug }}/</loc></url>
+  {%- endfor %}
+  {%- for post in collections.posts %}
+  <url>
+    <loc>{{ post.url | absUrl(site.url) }}</loc>
+    <lastmod>{{ (post.data.updated or post.date) | isoDate }}</lastmod>
+    {%- if post.data.image %}
+    <image:image><image:loc>{{ post.data.image | imgSize(1200) }}</image:loc></image:image>
+    {%- endif %}
+  </url>
+  {%- endfor %}
+  {%- for p in collections.pages %}
+  <url><loc>{{ p.url | absUrl(site.url) }}</loc></url>
+  {%- endfor %}
+</urlset>

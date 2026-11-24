@@ -1,0 +1,146 @@
+---
+layout: base.njk
+isHome: true
+bodyClass: is-home
+permalink: /
+homeFaq:
+  - q: "Can you really make money taking online surveys?"
+    a: "Yes, but think of it as pocket money, not a salary. Most people earn a few dollars a day from surveys on legit sites like Swagbucks, more if they combine surveys with cashback and other paid tasks."
+  - q: "Is Swagbucks legit?"
+    a: "Yes. Swagbucks has been paying members since 2008 in cash and gift cards and is available in the US, UK, Canada, Australia and Ireland. It is free to join and you never have to pay to take surveys."
+  - q: "How do I get the Swagbucks welcome bonus?"
+    a: "Sign up for a free account through one of our links. New members get a welcome bonus on Swagbucks; the exact terms are set by Swagbucks and shown on the sign-up page."
+  - q: "What are the best ways to make money offline?"
+    a: "Pet sitting, dog walking, babysitting, cleaning, yard work, reselling thrift finds, tutoring and food or grocery delivery are some of the fastest offline side hustles to start with little or no money."
+---
+<script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [{% for f in homeFaq %}{"@type": "Question", "name": {{ f.q | jsonify | safe }}, "acceptedAnswer": {"@type": "Answer", "text": {{ f.a | jsonify | safe }}}}{% if not loop.last %},{% endif %}{% endfor %}]
+}</script>
+
+<section class="hero">
+  <div class="wrap hero__in">
+    <div class="hero__copy">
+      <p class="eyebrow">Paid surveys · Side hustles · Money tips</p>
+      <h1>Make extra money online and offline, <span class="hl">the honest way.</span></h1>
+      <p class="hero__lead">Tested guides to paid surveys, Swagbucks and real side hustles for readers in the US, UK, Canada, Australia and Ireland. No get-rich-quick nonsense, just what actually pays.</p>
+      <div class="hero__btns">
+        <a class="btn btn--gold btn--lg" href="{{ site.swagbucksUrl }}" target="_blank" rel="sponsored noopener" data-cta="hero">Get your {{ site.swagbucksBonus }} welcome bonus</a>
+        <a class="btn btn--ghost btn--lg" href="#start">Start reading</a>
+      </div>
+      <ul class="hero__flags" aria-label="Countries we cover">
+        <li>🇺🇸 US</li><li>🇬🇧 UK</li><li>🇨🇦 Canada</li><li>🇦🇺 Australia</li><li>🇮🇪 Ireland</li>
+      </ul>
+    </div>
+    <div class="hero__art" aria-hidden="true">
+      <div class="bonus-card">
+        <div class="bonus-card__top"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+        <p class="bonus-card__label">Welcome bonus</p>
+        <p class="bonus-card__amount">{{ site.swagbucksBonus }}</p>
+        <p class="bonus-card__sub">when you join Swagbucks with our link</p>
+        <ul class="bonus-card__list">
+          <li><span>📝</span> Paid surveys <b>+SB</b></li>
+          <li><span>🛒</span> Cashback shopping <b>+SB</b></li>
+          <li><span>🎁</span> Redeem: PayPal &amp; gift cards</li>
+        </ul>
+      </div>
+      <div class="float float--1">💸 Survey complete <b>+150 SB</b></div>
+      <div class="float float--2">✅ Reward redeemed</div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="start">
+  <div class="wrap">
+    <div class="section__head">
+      <h2 class="section__title">Start here</h2>
+      <p class="section__sub">Our most useful guides for beginners.</p>
+    </div>
+    {%- set featured = collections.posts | featuredFirst | limit(3) -%}
+    <div class="grid grid--feature">
+      {% for post in featured %}
+        {% if loop.first %}
+        <article class="card card--big">
+          <a class="card__img" href="{{ post.url }}" tabindex="-1" aria-hidden="true">
+            {% if post.data.image %}<img src="{{ post.data.image | imgSize(1000) }}" alt="" width="1000" height="625" decoding="async">{% endif %}
+            <span class="chip chip--{{ post.data.category }}">{{ post.data.category | categoryName(categories) }}</span>
+          </a>
+          <div class="card__body">
+            <h3 class="card__title"><a href="{{ post.url }}">{{ post.data.title }}</a></h3>
+            <p class="card__desc">{{ post.data.description }}</p>
+            <p class="card__meta">{{ post.date | niceDate }} · {{ post.content | readingTime }} min read</p>
+          </div>
+        </article>
+        <div class="stack">
+        {% else %}
+          {% include "partials/card.njk" %}
+        {% endif %}
+      {% endfor %}
+        </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--dark">
+  <div class="wrap spotlight">
+    <div>
+      <p class="eyebrow eyebrow--light">Our top pick for paid surveys</p>
+      <h2>Why we recommend Swagbucks first</h2>
+      <p>It is free, it has paid out to members for years, and it works in all five countries we cover. Surveys are just one way to earn: you also get points for shopping online, answering daily polls and trying apps.</p>
+      <ul class="ticks">
+        <li>Free to join, no fees ever</li>
+        <li>Redeem for PayPal cash or gift cards (Amazon, Walmart and more)</li>
+        <li>Works on desktop and in the mobile app</li>
+        <li><b>{{ site.swagbucksBonus }} welcome bonus</b> when you sign up through our link</li>
+      </ul>
+      <div class="hero__btns">
+        <a class="btn btn--gold btn--lg" href="{{ site.swagbucksUrl }}" target="_blank" rel="sponsored noopener" data-cta="spotlight">Join Swagbucks free</a>
+        <a class="btn btn--ghost-light btn--lg" href="/category/swagbucks/">Read our Swagbucks guides</a>
+      </div>
+      <p class="fine">{{ site.bonusNote }}</p>
+    </div>
+    <img class="spotlight__img" src="/assets/img/graphics/ways-to-earn.svg" alt="Ways to earn on Swagbucks: surveys, cashback, polls, games and app offers" loading="lazy" width="560" height="456">
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section__head">
+      <h2 class="section__title">Browse by topic</h2>
+    </div>
+    <div class="topics">
+      {% for c in categories %}
+      <a class="topic topic--{{ c.slug }}" href="/category/{{ c.slug }}/">
+        <img src="/assets/img/icon-{{ c.icon }}.svg" alt="" width="44" height="44">
+        <span class="topic__name">{{ c.name }}</span>
+        <span class="topic__desc">{{ c.description }}</span>
+        <span class="topic__count">{% set n = (collections.posts | byCategory(c.slug)).length %}{{ n }} {{ "guide" if n == 1 else "guides" }}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section section--soft">
+  <div class="wrap">
+    <div class="section__head">
+      <h2 class="section__title">Latest guides</h2>
+      <a class="link-more" href="/blog/">See all &rarr;</a>
+    </div>
+    <div class="grid grid--3">
+      {% for post in collections.posts | limit(9) %}{% include "partials/card.njk" %}{% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap wrap--narrow">
+    <h2 class="section__title center">Quick answers</h2>
+    <div class="faq">
+      {% for f in homeFaq %}
+      <details{% if loop.first %} open{% endif %}><summary>{{ f.q }}</summary><p>{{ f.a }}</p></details>
+      {% endfor %}
+    </div>
+  </div>
+</section>

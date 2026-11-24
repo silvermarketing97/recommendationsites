@@ -1,0 +1,30 @@
+---
+layout: base.njk
+pagination:
+  data: categories
+  size: 1
+  alias: cat
+permalink: "/category/{{ cat.slug }}/"
+eleventyComputed:
+  title: "{{ cat.name }}: guides and tips"
+  description: "{{ cat.description }}"
+eleventyExcludeFromCollections: true
+tags: []
+---
+{%- set list = collections.posts | byCategory(cat.slug) -%}
+<section class="page-head page-head--{{ cat.slug }}">
+  <div class="wrap">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> <span>/</span> {{ cat.name }}</nav>
+    <h1>{{ cat.name }}</h1>
+    <p>{{ cat.description }}</p>
+  </div>
+</section>
+<section class="section">
+  <div class="wrap">
+    {% if list.length %}
+    <div class="grid grid--3">{% for post in list %}{% include "partials/card.njk" %}{% endfor %}</div>
+    {% else %}
+    <p class="empty">New guides in this topic are on the way. Meanwhile, <a href="/blog/">browse all guides</a>.</p>
+    {% endif %}
+  </div>
+</section>
