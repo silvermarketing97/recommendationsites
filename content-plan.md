@@ -10,7 +10,7 @@ The daily writer takes the first unchecked topic. Edit, reorder or add topics fr
 - [x] Why you keep getting disqualified from surveys (and how to fix it) → why-you-get-disqualified-from-surveys
 - [x] Swagbucks in the UK: how it works and what you can earn → swagbucks-uk
 - [x] How to make money online as a beginner with no money → make-money-online-beginner-no-money
-- [ ] Swagbucks tips and tricks to earn more points every day
+- [x] Swagbucks tips and tricks to earn more points every day → swagbucks-tips-and-tricks
 - [ ] Best paid survey sites in Canada
 - [ ] Dog walking side hustle: how to start and what to charge
 - [ ] Swagbucks cashback: how to earn on shopping you already do
